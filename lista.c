@@ -1,15 +1,18 @@
 #include "lista.h"
+#include "util.h"
 #include <time.h>
 #include <string.h>
 
-struct nol *criaNo (struct stat *dados, char *nome, int ordem, int pos){
+struct nol *criaNo (struct stat *dados, char *nome, int pos){
     struct nol *l;
     l = malloc(sizeof (struct nol));
     if (!l)
         return NULL;
-    l->info = dados;
+    l->perms = dados->st_mode;
+    l->tamanho = dados->st_size;
+    l->userid = dados->st_uid;
+    l->tempo = dados->st_mtime;
     l->nome = nome;
-    l->ordem = ordem;
     l->pos = pos;
     l->prox = NULL;
     return l;
@@ -31,9 +34,9 @@ struct nol *removeElemento (struct lista *lista, char *nome){
     return NULL;
 }
 
-void adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome, int ordem, int pos){
+void adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome, int pos){
     struct nol* novo;
-    novo = criaNo(dados, nome, ordem, pos);
+    novo = criaNo(dados, nome, pos);
     if (!novo){
         fprintf (stderr, "Falha de alocação");
         exit (1);
@@ -46,6 +49,7 @@ void adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome, int o
         lista->fim->prox = novo;
         lista->fim = novo;
     }
+    lista->tam++;
 }
 
 void imprimeLista (struct lista *lista, FILE *arq){
@@ -54,12 +58,11 @@ void imprimeLista (struct lista *lista, FILE *arq){
     aux = lista->inicio;
     while (aux){
         fwrite (aux->nome, sizeof(char), strlen(aux->nome), arq);
-        fwrite (&aux->info->st_uid, sizeof(int), 1 , arq);
-        fwrite (&aux->info->st_mode, sizeof(int), 1 , arq);
-        fwrite (&aux->info->st_size, sizeof(long), 1 , arq);
-        data = ctime (&aux->info->st_mtime);
+        fwrite (&aux->userid, sizeof(int), 1 , arq);
+        fwrite (&aux->perms, sizeof(int), 1 , arq);
+        fwrite (&aux->tamanho, sizeof(long), 1 , arq);
+        data = ctime (&aux->tempo);
         fwrite (data, sizeof(char), strlen(data) , arq);
-        fwrite (&aux->ordem, sizeof(int), 1 , arq);
         fwrite (&aux->pos, sizeof(int), 1 , arq);
         aux = aux->prox;
     }
@@ -88,6 +91,18 @@ struct lista *destroiLista (struct lista *lista){
         free (aux);
         aux = NULL;
     }
+    lista->tam = 0;
     free (lista);
+    return NULL;
+}
+
+struct nol *busca (char *nome, struct lista *lista){
+    struct nol *aux;
+    aux = lista->inicio;
+    while (aux){
+        if (!strcmp (aux->nome, nome))
+            return aux;
+        aux = aux->prox;
+    }
     return NULL;
 }

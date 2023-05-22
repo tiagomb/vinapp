@@ -37,5 +37,6 @@ int main(int argc, char **argv){
             printf ("Uso indevido");
             exit(1);
     }
+    destroiLista (lista);
     return 0;
 }

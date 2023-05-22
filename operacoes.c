@@ -1,34 +1,29 @@
 #include "operacoes.h"
+#include "util.h"
 
 void inclui (struct lista *lista, char **args){
-    FILE *arquivador, *arquivo;
+    FILE *arquivador;
     struct stat st;
-    int leituras, pos = 0;
+    int pos = 0, vazio = 0;
     char buffer[BUFFER];
-    if (!(arquivador = fopen(args[2], "r"))){
-        arquivador = fopen (args[2], "wb+");
-        fwrite (&pos, sizeof(int), 1, arquivador);
-        for (int i = 3; args[i] != NULL; i++){
-            stat(args[i], &st);
-            adicionaNaCauda (lista, &st, args[i], i-3, fseek (arquivador, 0, SEEK_END));
-            if (!(arquivo = fopen (args[i], "r"))){
-                fprintf (stderr, "Falha ao abrir %s\n", args[i]);
-                exit (1);
-            }
-            leituras = st.st_size/BUFFER;
-            for (int j = 0; j < leituras; j++){
-                fread(buffer, sizeof(char), BUFFER, arquivo);
-                fwrite(buffer, sizeof(char), BUFFER, arquivador);
-            }
-            if (st.st_size%BUFFER){
-                fread(buffer, sizeof(char), st.st_size%BUFFER, arquivo);
-                fwrite(buffer, sizeof(char), st.st_size%BUFFER, arquivador);
-            }
+    struct nol *aux;
+    arquivador = fopen (args[2], "wb+");
+    vazio = extraiInformacoes (lista, arquivador);
+    fwrite (&pos, sizeof(int), 1, arquivador);
+    for (int i = 3; args[i] != NULL; i++){
+        stat(args[i], &st);
+        if ((aux = busca (args[i], lista))){
+            aux->tempo = st.st_mtime;
+            removeArquivo (aux, arquivador);
         }
-        pos = ftell (arquivador);
-        rewind (arquivador);
-        fwrite (&pos, sizeof(int), 1, arquivador);
-        fseek (arquivador, 0, SEEK_END);
-        imprimeLista (lista, arquivador);
+        else
+            adicionaNaCauda (lista, &st, args[i], fseek (arquivador, 0, SEEK_END));
+        leArquivo (args[i], buffer, arquivador, st);
     }
+    pos = ftell (arquivador);
+    rewind (arquivador);
+    fwrite (&pos, sizeof(int), 1, arquivador);
+    fseek (arquivador, 0, SEEK_END);
+    imprimeLista (lista, arquivador);
+    fclose (arquivador);
 }
