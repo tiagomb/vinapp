@@ -1,19 +1,21 @@
 #include "lista.h"
+#include <time.h>
+#include <string.h>
 
-struct nol *criaNo (struct stat *dados, char *nome, int pos){
+struct nol *criaNo (struct stat *dados, char *nome, int ordem, int pos){
     struct nol *l;
     l = malloc(sizeof (struct nol));
     if (!l)
         return NULL;
     l->info = dados;
     l->nome = nome;
+    l->ordem = ordem;
     l->pos = pos;
     l->prox = NULL;
     return l;
 }
 
 struct nol *removeElemento (struct lista *lista, char *nome){
-    int dado, pos;
     struct nol *aux;
     aux = lista->inicio;
     if (aux->nome == nome){
@@ -29,9 +31,9 @@ struct nol *removeElemento (struct lista *lista, char *nome){
     return NULL;
 }
 
-void adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome, int pos){
+void adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome, int ordem, int pos){
     struct nol* novo;
-    novo = criaNo(dados, nome, pos);
+    novo = criaNo(dados, nome, ordem, pos);
     if (!novo){
         fprintf (stderr, "Falha de alocação");
         exit (1);
@@ -46,11 +48,19 @@ void adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome, int p
     }
 }
 
-void imprimeLista (struct lista *lista){
+void imprimeLista (struct lista *lista, FILE *arq){
     struct nol *aux;
-    int i = 1;
+    char *data;
     aux = lista->inicio;
     while (aux){
+        fwrite (aux->nome, sizeof(char), strlen(aux->nome), arq);
+        fwrite (&aux->info->st_uid, sizeof(int), 1 , arq);
+        fwrite (&aux->info->st_mode, sizeof(int), 1 , arq);
+        fwrite (&aux->info->st_size, sizeof(long), 1 , arq);
+        data = ctime (&aux->info->st_mtime);
+        fwrite (data, sizeof(char), strlen(data) , arq);
+        fwrite (&aux->ordem, sizeof(int), 1 , arq);
+        fwrite (&aux->pos, sizeof(int), 1 , arq);
         aux = aux->prox;
     }
 }
@@ -67,6 +77,7 @@ struct lista *inicializaLista (){
     aux->tam = 0;
     aux->inicio = NULL;
     aux->fim = NULL;
+    return aux;
 }
 
 struct lista *destroiLista (struct lista *lista){
