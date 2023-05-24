@@ -4,16 +4,17 @@
 void inclui (struct lista *lista, char **args){
     FILE *arquivador;
     struct stat st;
-    int pos = 0, vazio = 0;
+    int pos = 0;
     char buffer[BUFFER];
     struct nol *aux;
-    arquivador = fopen (args[2], "wb+");
-    vazio = extraiInformacoes (lista, arquivador);
+    if (!(arquivador = fopen (args[2], "r+b")))
+        arquivador = fopen (args[2], "w+b");
+    extraiInformacoes (lista, arquivador);
     fwrite (&pos, sizeof(int), 1, arquivador);
     for (int i = 3; args[i] != NULL; i++){
         stat(args[i], &st);
         if ((aux = busca (args[i], lista))){
-            aux->tempo = st.st_mtime;
+            atualizaNo (aux, st, arquivador);
             removeArquivo (aux, arquivador);
         }
         else

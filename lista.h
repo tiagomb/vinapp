@@ -26,7 +26,7 @@ struct nol *criaNo (struct stat *dados, char *nome,int pos);
 
 struct nol *removeElemento (struct lista *lista, char *nome);
 
-void adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome, int pos);
+struct nol *adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome, int pos);
 
 void imprimeLista (struct lista *lista, FILE *arq);
 

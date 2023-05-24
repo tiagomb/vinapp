@@ -34,7 +34,7 @@ struct nol *removeElemento (struct lista *lista, char *nome){
     return NULL;
 }
 
-void adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome, int pos){
+struct nol *adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome, int pos){
     struct nol* novo;
     novo = criaNo(dados, nome, pos);
     if (!novo){
@@ -50,19 +50,21 @@ void adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome, int p
         lista->fim = novo;
     }
     lista->tam++;
+    return lista->fim;
 }
 
 void imprimeLista (struct lista *lista, FILE *arq){
     struct nol *aux;
-    char *data;
+    int tam;
     aux = lista->inicio;
     while (aux){
+        tam = strlen(aux->nome);
+        fwrite (&tam, sizeof(int), 1 , arq);
         fwrite (aux->nome, sizeof(char), strlen(aux->nome), arq);
         fwrite (&aux->userid, sizeof(int), 1 , arq);
         fwrite (&aux->perms, sizeof(int), 1 , arq);
         fwrite (&aux->tamanho, sizeof(long), 1 , arq);
-        data = ctime (&aux->tempo);
-        fwrite (data, sizeof(char), strlen(data) , arq);
+        fwrite (&aux->tempo, sizeof(int), 1 , arq);
         fwrite (&aux->pos, sizeof(int), 1 , arq);
         aux = aux->prox;
     }
