@@ -8,10 +8,12 @@ struct nol *criaNo (struct stat *dados, char *nome, int pos){
     l = malloc(sizeof (struct nol));
     if (!l)
         return NULL;
-    l->perms = dados->st_mode;
-    l->tamanho = dados->st_size;
-    l->userid = dados->st_uid;
-    l->tempo = dados->st_mtime;
+    if (dados){
+        l->perms = dados->st_mode;
+        l->tamanho = dados->st_size;
+        l->userid = dados->st_uid;
+        l->tempo = dados->st_mtime;
+    }
     l->nome = nome;
     l->pos = pos;
     l->prox = NULL;
@@ -34,7 +36,19 @@ struct nol *removeElemento (struct lista *lista, char *nome){
     return NULL;
 }
 
-struct nol *adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome, int pos){
+void adicionaNo (struct lista *lista, struct nol *no){
+    if (estaVazia (lista)){
+        lista->inicio = no;
+        lista->fim = no;
+    }
+    else{
+        lista->fim->prox = no;
+        lista->fim = no;
+    }
+    lista->tam++;
+}
+
+void adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome, int pos){
     struct nol* novo;
     novo = criaNo(dados, nome, pos);
     if (!novo){
@@ -50,13 +64,13 @@ struct nol *adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome
         lista->fim = novo;
     }
     lista->tam++;
-    return lista->fim;
 }
 
-void imprimeLista (struct lista *lista, FILE *arq){
+void imprimeListaArq (struct lista *lista, FILE *arq){
     struct nol *aux;
     int tam;
     aux = lista->inicio;
+    fwrite (&lista->tam, sizeof(int), 1 , arq);
     while (aux){
         tam = strlen(aux->nome);
         fwrite (&tam, sizeof(int), 1 , arq);
