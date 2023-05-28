@@ -29,3 +29,31 @@ void inclui (struct lista *lista, char **args){
     imprimeListaArq (lista, arquivador);
     fclose (arquivador);
 }
+
+void extrai (struct lista *lista, char **args){
+    FILE *arquivador;
+    struct nol *aux;
+    if (!(arquivador = fopen (args[2], "rb"))){
+        fprintf (stderr, "Arquivador inexistente\n");
+        exit (1);
+    }
+    else{
+        extraiInformacoes (lista, arquivador);
+        if (!args[3]){
+            aux = lista->inicio;
+            while (aux){
+                extraiArquivo (aux, arquivador);
+                aux = aux->prox;
+            }
+        }
+        else{
+            for (int i = 3; args[i] != NULL; i++){
+                if ((aux = busca (args[i], lista)))
+                    extraiArquivo (aux, arquivador);
+                else
+                    printf ("Arquivo não encontrado.\n");
+            }
+        }
+        fclose (arquivador);
+    }
+}

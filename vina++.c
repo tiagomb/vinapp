@@ -25,7 +25,9 @@ int main(int argc, char **argv){
             printf ("Mover %s\n", arquivo);
         break;
         case 'x':
-            printf ("%d argumentos para excluir em %s\n", argc - 3, argv[2]);
+            extrai (lista, argv);
+        break;
+        case 'r':
         break;
         case 'c':
             printf ("Listar conteudo\n");

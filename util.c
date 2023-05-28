@@ -85,3 +85,21 @@ void extraiInformacoes (struct lista *lista, FILE *arquivador){
         adicionaNo (lista, aux);
     }
 }
+
+void extraiArquivo (struct nol *no, FILE *arquivador){
+    char buffer[BUFFER];
+    int leituras;
+    FILE *arquivo;
+    arquivo = fopen (no->nome, "w");
+    fseek (arquivador, no->pos, SEEK_SET);
+    leituras = no->tamanho/BUFFER;
+    for (int i = 0; i < leituras; i++){
+        fread (buffer, sizeof(char), BUFFER, arquivador);
+        fwrite (buffer, sizeof(char), BUFFER, arquivo);
+    }
+    if (no->tamanho%BUFFER){
+        fread (buffer, sizeof(char), no->tamanho%BUFFER, arquivador);
+        fwrite (buffer, sizeof(char), no->tamanho%BUFFER, arquivo);
+    }
+    fclose (arquivo);
+}

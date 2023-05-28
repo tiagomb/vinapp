@@ -13,4 +13,6 @@ void removeArquivo (struct nol *no, FILE *arquivador);
 
 void extraiInformacoes (struct lista *lista, FILE *arquivador);
 
+void extraiArquivo (struct nol *no, FILE *arquivador);
+
 #endif // ___util_h___
