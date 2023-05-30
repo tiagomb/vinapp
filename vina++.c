@@ -28,9 +28,10 @@ int main(int argc, char **argv){
             extrai (lista, argv);
         break;
         case 'r':
+            exclui (lista, argv);
         break;
         case 'c':
-            printf ("Listar conteudo\n");
+            imprimeInformacoes (lista, argv);
         break;
         case 'h':
             printf ("Imprimir ajuda\n");

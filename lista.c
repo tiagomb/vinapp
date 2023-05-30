@@ -25,12 +25,14 @@ struct nol *removeElemento (struct lista *lista, char *nome){
     aux = lista->inicio;
     if (aux->nome == nome){
         lista->inicio = lista->inicio->prox;
+        lista->tam--;
         return aux;
     }
     while (aux->prox && aux->prox->nome != nome)
         aux = aux->prox;
     if (aux->prox){
         aux->prox = aux->prox->prox;
+        lista->tam--;
         return aux->prox;
     }
     return NULL;

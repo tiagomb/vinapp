@@ -1,5 +1,6 @@
 #include "util.h"
 #include <unistd.h>
+#include <pwd.h>
 
 void leArquivo (char *arq, char *buffer, FILE *arquivador, struct stat st){
     FILE *arquivo;
@@ -25,43 +26,34 @@ void atualizaNo (struct nol *no, struct stat st, FILE *arquivador){
     no->userid = st.st_uid;
     no->tamanho = st.st_size;
     no->tempo = st.st_mtime;
-    fseek (arquivador, 0, SEEK_END);
     no->pos = ftell (arquivador);
 }
 
 void removeArquivo (struct nol *no, FILE *arquivador){
     char buffer[BUFFER];
     int leituras, tam, pos, aux;
-    if (!no->prox)
-        ftruncate (fileno(arquivador), no->pos);
-    else{
-        rewind (arquivador);
-        fread (&pos, sizeof(int), 1, arquivador);
-        fseek (arquivador, 0, SEEK_END);
-        aux = ftell(arquivador);
-        fseek (arquivador, -no->prox->pos, SEEK_END);
-        tam = ftell (arquivador) - (aux - pos);
-        leituras = tam/BUFFER;
-        for (int i = 0; i < leituras; i++){
-            fseek (arquivador, no->prox->pos + i*BUFFER, SEEK_SET);
-            fread (buffer, sizeof(char), BUFFER, arquivador);
-            fseek (arquivador, no->pos + i*BUFFER, SEEK_SET);
-            fwrite (buffer, sizeof(char), BUFFER, arquivador);
-        }
-        if (tam%BUFFER){
-            fseek (arquivador, no->prox->pos + leituras*BUFFER, SEEK_SET);
-            fread (buffer, sizeof(char), tam%BUFFER, arquivador);
-            fseek (arquivador, no->pos + leituras*BUFFER, SEEK_SET);
-            fwrite (buffer, sizeof(char), tam%BUFFER, arquivador);
-        }
-        rewind (arquivador);
-        ftruncate (fileno(arquivador), no->pos + tam);
-        tam = no->tamanho;
-        while (no->prox){
-            no->prox->pos -= tam;
-            no = no->prox;
-        }
+    rewind (arquivador);
+    fread (&pos, sizeof(int), 1, arquivador);
+    fseek (arquivador, 0, SEEK_END);
+    aux = ftell(arquivador);
+    fseek (arquivador, -(no->pos + no->tamanho), SEEK_END);
+    tam = ftell (arquivador) - (aux - pos);
+    leituras = tam/BUFFER;
+    for (int i = 0; i < leituras; i++){
+        fseek (arquivador, no->prox->pos + i*BUFFER, SEEK_SET);
+        fread (buffer, sizeof(char), BUFFER, arquivador);
+        fseek (arquivador, no->pos + i*BUFFER, SEEK_SET);
+        fwrite (buffer, sizeof(char), BUFFER, arquivador);
     }
+    if (tam%BUFFER){
+        fseek (arquivador, no->prox->pos + leituras*BUFFER, SEEK_SET);
+        fread (buffer, sizeof(char), tam%BUFFER, arquivador);
+        fseek (arquivador, no->pos + leituras*BUFFER, SEEK_SET);
+        fwrite (buffer, sizeof(char), tam%BUFFER, arquivador);
+    }
+    rewind (arquivador);
+    ftruncate (fileno(arquivador), no->pos + tam);
+    fseek (arquivador, 0, SEEK_END);
 }
 
 void extraiInformacoes (struct lista *lista, FILE *arquivador){
@@ -102,4 +94,39 @@ void extraiArquivo (struct nol *no, FILE *arquivador){
         fwrite (buffer, sizeof(char), no->tamanho%BUFFER, arquivo);
     }
     fclose (arquivo);
+}
+
+void atualizaLista (int tamanho, int pos, struct lista *lista){
+    struct nol *aux;
+    aux = lista->inicio;
+    while (aux){
+        if (aux->pos > pos)
+            aux->pos -= tamanho;
+        aux = aux->prox;
+    }
+}
+
+void imprimePermissoes (mode_t mode){
+    printf( (S_ISDIR(mode)) ? "d" : "-");
+    printf( (mode & S_IRUSR) ? "r" : "-");
+    printf( (mode & S_IWUSR) ? "w" : "-");
+    printf( (mode & S_IXUSR) ? "x" : "-");
+    printf( (mode & S_IRGRP) ? "r" : "-");
+    printf( (mode & S_IWGRP) ? "w" : "-");
+    printf( (mode & S_IXGRP) ? "x" : "-");
+    printf( (mode & S_IROTH) ? "r" : "-");
+    printf( (mode & S_IWOTH) ? "w" : "-");
+    printf( (mode & S_IXOTH) ? "x" : "-");
+    printf("\t");
+}
+
+void imprimeOpcoes (){
+    printf ("Usos:\n");
+    printf ("vina++ -i <archive> [membro1 membro2 ...]\n");
+    printf ("vina++ -a <archive> [membro1 membro2 ...]\n");
+    printf ("vina++ -m <target> <archive> <file>\n");
+    printf ("vina++ -x <archive> [membro1 membro2 ...]\n");
+    printf ("vina++ -r <archive> [membro1 membro2 ...]\n");
+    printf ("vina++ -c <archive>\n");
+    printf ("vina++ -h\n");
 }

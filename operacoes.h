@@ -10,4 +10,8 @@ void inclui (struct lista *lista, char **args);
 
 void extrai (struct lista *lista, char **args);
 
+void exclui (struct lista *lista, char **args);
+
+void imprimeInformacoes (struct lista *lista, char **args);
+
 #endif // ___operacoes_h___
