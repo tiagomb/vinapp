@@ -34,7 +34,7 @@ int main(int argc, char **argv){
             imprimeInformacoes (lista, argv);
         break;
         case 'h':
-            printf ("Imprimir ajuda\n");
+            imprimeOpcoes ();
         break;
         default:
             printf ("Uso indevido");

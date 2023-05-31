@@ -24,11 +24,11 @@ void inclui (struct lista *lista, char **args){
         else
             adicionaNaCauda (lista, &st, args[i], ftell (arquivador));
         leArquivo (args[i], buffer, arquivador, st);
+        pos = ftell (arquivador);
+        rewind (arquivador);
+        fwrite (&pos, sizeof(int), 1, arquivador);
+        fseek (arquivador, 0, SEEK_END);
     }
-    pos = ftell (arquivador);
-    rewind (arquivador);
-    fwrite (&pos, sizeof(int), 1, arquivador);
-    fseek (arquivador, 0, SEEK_END);
     imprimeListaArq (lista, arquivador);
     fclose (arquivador);
 }
@@ -122,11 +122,22 @@ void imprimeInformacoes (struct lista *lista, char **args){
         imprimePermissoes (aux->perms);
         pw = getpwuid (aux->userid);
         printf ("%s\t", pw->pw_name);
-        printf ("%lld\t", aux->tamanho);
+        printf ("%ld\t", aux->tamanho);
         tm = localtime (&aux->tempo);
         printf ("%d-%02d-%02d %02d:%02d ", tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, tm->tm_hour, tm->tm_min);
         printf ("%s\n", aux->nome);
         aux = aux->prox;
     }
     fclose (arquivador);
+}
+
+void imprimeOpcoes (){
+    printf ("Usos:\n");
+    printf ("vina++ -i <archive> [membro1 membro2 ...]\n");
+    printf ("vina++ -a <archive> [membro1 membro2 ...]\n");
+    printf ("vina++ -m <target> <archive> <file>\n");
+    printf ("vina++ -x <archive> [membro1 membro2 ...]\n");
+    printf ("vina++ -r <archive> [membro1 membro2 ...]\n");
+    printf ("vina++ -c <archive>\n");
+    printf ("vina++ -h\n");
 }

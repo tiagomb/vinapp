@@ -19,6 +19,4 @@ void atualizaLista (int tamanho, int pos, struct lista *lista);
 
 void imprimePermissoes (mode_t mode);
 
-void imprimeOpcoes ();
-
 #endif // ___util_h___

@@ -14,7 +14,9 @@ struct nol *criaNo (struct stat *dados, char *nome, int pos){
         l->userid = dados->st_uid;
         l->tempo = dados->st_mtime;
     }
-    l->nome = nome;
+    l->nome = malloc ((strlen(nome)+1)*sizeof(char));
+    strncpy (l->nome, nome, strlen(nome));
+    l->nome[strlen(nome)] = '\0';
     l->pos = pos;
     l->prox = NULL;
     return l;
@@ -77,10 +79,10 @@ void imprimeListaArq (struct lista *lista, FILE *arq){
         tam = strlen(aux->nome);
         fwrite (&tam, sizeof(int), 1 , arq);
         fwrite (aux->nome, sizeof(char), strlen(aux->nome), arq);
-        fwrite (&aux->userid, sizeof(int), 1 , arq);
-        fwrite (&aux->perms, sizeof(int), 1 , arq);
-        fwrite (&aux->tamanho, sizeof(long), 1 , arq);
-        fwrite (&aux->tempo, sizeof(int), 1 , arq);
+        fwrite (&aux->userid, sizeof(uid_t), 1 , arq);
+        fwrite (&aux->perms, sizeof(mode_t), 1 , arq);
+        fwrite (&aux->tamanho, sizeof(off_t), 1 , arq);
+        fwrite (&aux->tempo, sizeof(time_t), 1 , arq);
         fwrite (&aux->pos, sizeof(int), 1 , arq);
         aux = aux->prox;
     }
@@ -106,6 +108,7 @@ struct lista *destroiLista (struct lista *lista){
     while (lista->inicio){
         aux = lista->inicio;
         lista->inicio = lista->inicio->prox;
+        free (aux->nome);
         free (aux);
         aux = NULL;
     }

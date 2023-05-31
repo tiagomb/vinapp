@@ -14,4 +14,6 @@ void exclui (struct lista *lista, char **args);
 
 void imprimeInformacoes (struct lista *lista, char **args);
 
+void imprimeOpcoes ();
+
 #endif // ___operacoes_h___

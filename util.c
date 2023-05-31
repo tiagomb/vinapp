@@ -38,15 +38,16 @@ void removeArquivo (struct nol *no, FILE *arquivador){
     aux = ftell(arquivador);
     fseek (arquivador, -(no->pos + no->tamanho), SEEK_END);
     tam = ftell (arquivador) - (aux - pos);
+    printf ("tam %d\n", tam);
     leituras = tam/BUFFER;
     for (int i = 0; i < leituras; i++){
-        fseek (arquivador, no->prox->pos + i*BUFFER, SEEK_SET);
+        fseek (arquivador, no->pos + no->tamanho + i*BUFFER, SEEK_SET);
         fread (buffer, sizeof(char), BUFFER, arquivador);
         fseek (arquivador, no->pos + i*BUFFER, SEEK_SET);
         fwrite (buffer, sizeof(char), BUFFER, arquivador);
     }
     if (tam%BUFFER){
-        fseek (arquivador, no->prox->pos + leituras*BUFFER, SEEK_SET);
+        fseek (arquivador, no->pos + no->tamanho + leituras*BUFFER, SEEK_SET);
         fread (buffer, sizeof(char), tam%BUFFER, arquivador);
         fseek (arquivador, no->pos + leituras*BUFFER, SEEK_SET);
         fwrite (buffer, sizeof(char), tam%BUFFER, arquivador);
@@ -69,10 +70,10 @@ void extraiInformacoes (struct lista *lista, FILE *arquivador){
         aux->nome = malloc ((tam_arq+1)*sizeof(char));
         fread (aux->nome, sizeof(char), tam_arq, arquivador);
         aux->nome[tam_arq] = '\0';
-        fread (&aux->userid, sizeof(int), 1, arquivador);
-        fread (&aux->perms, sizeof(int), 1, arquivador);
-        fread (&aux->tamanho, sizeof(long), 1, arquivador);
-        fread (&aux->tempo, sizeof(int), 1, arquivador);
+        fread (&aux->userid, sizeof(uid_t), 1, arquivador);
+        fread (&aux->perms, sizeof(mode_t), 1, arquivador);
+        fread (&aux->tamanho, sizeof(off_t), 1, arquivador);
+        fread (&aux->tempo, sizeof(time_t), 1, arquivador);
         fread (&aux->pos, sizeof(int), 1, arquivador);
         adicionaNo (lista, aux);
     }
@@ -118,15 +119,4 @@ void imprimePermissoes (mode_t mode){
     printf( (mode & S_IWOTH) ? "w" : "-");
     printf( (mode & S_IXOTH) ? "x" : "-");
     printf("\t");
-}
-
-void imprimeOpcoes (){
-    printf ("Usos:\n");
-    printf ("vina++ -i <archive> [membro1 membro2 ...]\n");
-    printf ("vina++ -a <archive> [membro1 membro2 ...]\n");
-    printf ("vina++ -m <target> <archive> <file>\n");
-    printf ("vina++ -x <archive> [membro1 membro2 ...]\n");
-    printf ("vina++ -r <archive> [membro1 membro2 ...]\n");
-    printf ("vina++ -c <archive>\n");
-    printf ("vina++ -h\n");
 }
