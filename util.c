@@ -127,6 +127,7 @@ void imprimePermissoes (mode_t mode){
 void abreEspaco (FILE *arquivador, struct nol *aux, struct nol *aux1){
     int fim, pos, tam, leituras;
     char buffer[BUFFER];
+    rewind (arquivador);
     fread (&pos, sizeof(int), 1, arquivador);
     fseek (arquivador, 0, SEEK_END);
     fim = ftell(arquivador);

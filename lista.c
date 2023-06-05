@@ -29,7 +29,6 @@ struct nol *removeElemento (struct lista *lista, char *nome){
     aux = lista->inicio;
     if (!strcmp(aux->nome, nome)){
         lista->inicio = lista->inicio->prox;
-        lista->inicio->ant = NULL;
         lista->tam--;
         return aux;
     }
