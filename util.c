@@ -21,12 +21,13 @@ void leArquivo (char *arq, char *buffer, FILE *arquivador, struct stat st){
     fclose (arquivo);
 }
 
-void atualizaNo (struct nol *no, struct stat st, FILE *arquivador){
+void atualizaNo (struct nol *no, struct stat st, FILE *arquivador, int ordem){
     no->perms = st.st_mode;
     no->userid = st.st_uid;
     no->tamanho = st.st_size;
     no->tempo = st.st_mtime;
     no->pos = ftell (arquivador);
+    no->ordem = ordem;
 }
 
 void removeArquivo (struct nol *no, FILE *arquivador){
@@ -38,7 +39,6 @@ void removeArquivo (struct nol *no, FILE *arquivador){
     aux = ftell(arquivador);
     fseek (arquivador, -(no->pos + no->tamanho), SEEK_END);
     tam = ftell (arquivador) - (aux - pos);
-    printf ("tam %d\n", tam);
     leituras = tam/BUFFER;
     for (int i = 0; i < leituras; i++){
         fseek (arquivador, no->pos + no->tamanho + i*BUFFER, SEEK_SET);
@@ -74,7 +74,8 @@ void extraiInformacoes (struct lista *lista, FILE *arquivador){
         fread (&aux->perms, sizeof(mode_t), 1, arquivador);
         fread (&aux->tamanho, sizeof(off_t), 1, arquivador);
         fread (&aux->tempo, sizeof(time_t), 1, arquivador);
-        fread (&aux->pos, sizeof(int), 1, arquivador);
+        fread (&aux->pos, sizeof(size_t), 1, arquivador);
+        fread (&aux->ordem, sizeof(int), 1, arquivador);
         adicionaNo (lista, aux);
     }
 }
@@ -101,8 +102,10 @@ void atualizaLista (int tamanho, int pos, struct lista *lista){
     struct nol *aux;
     aux = lista->inicio;
     while (aux){
-        if (aux->pos > pos)
+        if (aux->pos > pos){
             aux->pos -= tamanho;
+            aux->ordem--;
+        }
         aux = aux->prox;
     }
 }
@@ -119,4 +122,108 @@ void imprimePermissoes (mode_t mode){
     printf( (mode & S_IWOTH) ? "w" : "-");
     printf( (mode & S_IXOTH) ? "x" : "-");
     printf("\t");
+}
+
+void abreEspaco (FILE *arquivador, struct nol *aux, struct nol *aux1){
+    int fim, pos, tam, leituras;
+    char buffer[BUFFER];
+    fread (&pos, sizeof(int), 1, arquivador);
+    fseek (arquivador, 0, SEEK_END);
+    fim = ftell(arquivador);
+    fseek (arquivador, -(aux->pos + aux->tamanho), SEEK_END);
+    tam = ftell (arquivador) - (fim - pos);
+    leituras = tam/BUFFER;
+    for (int i = 1; i <=leituras; i++){
+        fseek (arquivador, pos - i*BUFFER, SEEK_SET);
+        fread (buffer, sizeof(char), BUFFER, arquivador);
+        fseek (arquivador, aux1->tamanho, SEEK_CUR);
+        fwrite (buffer, sizeof(char), BUFFER, arquivador);
+    }
+    if (tam%BUFFER){
+        fseek (arquivador, pos + tam%BUFFER + leituras * BUFFER, SEEK_SET);
+        fread (buffer, sizeof(char), tam%BUFFER, arquivador);
+        fseek (arquivador, aux1->tamanho, SEEK_CUR);
+        fwrite (buffer, sizeof(char), tam%BUFFER, arquivador);
+    }
+    rewind (arquivador);
+    ftruncate (fileno(arquivador), aux->pos + aux->tamanho + aux1->tamanho + tam);
+}
+
+void moveArquivo (FILE *arquivador, struct nol *aux, struct nol *aux1, int pos){
+    int leituras;
+    char buffer[BUFFER];
+    leituras = aux1->tamanho / BUFFER;
+    for (int i = 0; i < leituras; i++){
+        fseek (arquivador, pos + i*BUFFER, SEEK_SET);
+        fread (buffer, sizeof(char), BUFFER, arquivador);
+        fseek (arquivador, aux->pos + i*BUFFER + aux->tamanho, SEEK_SET);
+        fwrite (buffer, sizeof(char), BUFFER, arquivador);
+    }
+    if (aux1->tamanho % BUFFER){
+        fseek (arquivador, pos + leituras*BUFFER, SEEK_SET);
+        fread (buffer, sizeof(char), aux1->tamanho % BUFFER, arquivador);
+        fseek (arquivador, aux->pos + leituras*BUFFER + aux->tamanho, SEEK_SET);
+        fwrite (buffer, sizeof(char), aux1->tamanho % BUFFER, arquivador);
+    }
+    fseek (arquivador, 0, SEEK_END);
+}
+
+void preencheVazio (FILE *arquivador, struct nol *aux, struct nol *aux1, int pos){
+    int leituras, tam;
+    char buffer[BUFFER];
+    tam = ftell (arquivador);
+    leituras = tam / BUFFER;
+    for (int i = 0; i < leituras; i++){
+        fseek (arquivador, pos + aux1->tamanho + i*BUFFER, SEEK_SET);
+        fread (buffer, sizeof(char), BUFFER, arquivador);
+        fseek (arquivador, pos + i*BUFFER, SEEK_SET);
+        fwrite (buffer, sizeof(char), BUFFER, arquivador);
+    }
+    if (tam%BUFFER){
+        fseek (arquivador, pos + aux1->tamanho + leituras*BUFFER, SEEK_SET);
+        fread (buffer, sizeof(char), tam%BUFFER, arquivador);
+        fseek (arquivador, pos + leituras*BUFFER, SEEK_SET);
+        fwrite (buffer, sizeof(char), tam%BUFFER, arquivador);
+    }
+    rewind (arquivador);
+    ftruncate (fileno(arquivador), pos + tam);
+    fseek (arquivador, 0, SEEK_END);
+}
+
+void atualizaOrdem (struct lista *lista, struct nol *aux, struct nol *aux1){
+    struct nol *aux2;
+    aux2 = lista->inicio;
+    if (aux1->ordem > aux->ordem){
+        while (aux2){
+            if (aux2->ordem > aux->ordem && aux2->ordem < aux1->ordem){
+                aux2->ordem++;
+                aux2->pos += aux1->tamanho;
+            }
+            aux2 = aux2->prox;
+        }
+        aux1->ordem = aux->ordem + 1;
+    }
+    else{
+        while (aux2){
+            if (aux2->ordem < aux->ordem && aux2->ordem > aux1->ordem){
+                aux2->ordem--;
+                aux2->pos -= aux1->tamanho;
+            }
+            aux2 = aux2->prox;
+        }
+        aux1->ordem = aux->ordem - 1;
+    }
+    mudaPonteiros (aux, aux1);
+}
+
+void mudaPonteiros (struct nol *aux, struct nol *aux1){
+    if (aux1->ant)
+        aux1->ant->prox = aux1->prox;
+    if (aux1->prox)
+        aux1->prox->ant = aux1->ant;
+    aux1->ant = aux;
+    aux1->prox = aux->prox;
+    if (aux->prox)
+        aux->prox->ant = aux1;
+    aux->prox = aux1;
 }

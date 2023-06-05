@@ -9,12 +9,14 @@
 
 struct nol{
     char *nome;
-    int pos;
+    size_t pos;
+    int ordem;
     mode_t perms;
     uid_t userid;
     off_t tamanho;
     time_t tempo;
     struct nol *prox;
+    struct nol *ant;
 };
 
 struct lista{
@@ -23,13 +25,13 @@ struct lista{
     struct nol *fim;
 };
 
-struct nol *criaNo (struct stat *dados, char *nome,int pos);
+struct nol *criaNo (struct stat *dados, char *nome, size_t pos, int ordem);
 
 struct nol *removeElemento (struct lista *lista, char *nome);
 
 void adicionaNo (struct lista *lista, struct nol *no);
 
-void adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome, int pos);
+void adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome, size_t pos, int ordem);
 
 void imprimeListaArq (struct lista *lista, FILE *arq);
 

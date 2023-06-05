@@ -12,6 +12,8 @@ void extrai (struct lista *lista, char **args);
 
 void exclui (struct lista *lista, char **args);
 
+void move (struct lista *lista, char *target, char **args);
+
 void imprimeInformacoes (struct lista *lista, char **args);
 
 void imprimeOpcoes ();
