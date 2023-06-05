@@ -6,6 +6,7 @@ void inclui (struct lista *lista, char **args){
     FILE *arquivador;
     struct stat st;
     int pos = 0;
+    size_t diff;
     char buffer[BUFFER];
     struct nol *aux;
     if (!(arquivador = fopen (args[2], "r+b"))){
@@ -17,7 +18,8 @@ void inclui (struct lista *lista, char **args){
     for (int i = 3; args[i] != NULL; i++){
         stat(args[i], &st);
         if ((aux = busca (args[i], lista))){
-            removeArquivo (aux, arquivador);
+            diff = st.st_size - aux->tamanho;
+            refazEspaco (arquivador, aux, lista, diff);
             atualizaLista(aux->tamanho, aux->pos, lista);
             atualizaNo (aux, st, arquivador, lista->tam);
         }
