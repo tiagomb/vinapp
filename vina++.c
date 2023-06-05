@@ -22,7 +22,7 @@ int main(int argc, char **argv){
         break;
         case 'm':
             arquivo = optarg;
-            printf ("Mover %s\n", arquivo);
+            move (lista, arquivo, argv);
         break;
         case 'x':
             extrai (lista, argv);
