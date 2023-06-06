@@ -147,11 +147,14 @@ void move (struct lista *lista, char *target, char **args){
     }
     atualizaMove (aux1, aux, lista);
     aux1->pos = aux->pos + aux->tamanho;
+    //fazer funcao pra mudar nos
     fseek (arquivador, 0, SEEK_END);
     pos = ftell (arquivador);
     rewind (arquivador);
     fwrite (&pos, sizeof(int), 1, arquivador);
     fseek (arquivador, 0, SEEK_END);
+    imprimeListaArq (lista, arquivador);
+    fclose (arquivador);
 } 
 
 void imprimeInformacoes (struct lista *lista, char **args){
