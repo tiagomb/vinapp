@@ -3,7 +3,7 @@
 #include <time.h>
 #include <string.h>
 
-struct nol *criaNo (struct stat *dados, char *nome, size_t pos, int ordem){
+struct nol *criaNo (struct stat *dados, char *nome, size_t pos){
     struct nol *l;
     l = malloc(sizeof (struct nol));
     if (!l)
@@ -18,7 +18,6 @@ struct nol *criaNo (struct stat *dados, char *nome, size_t pos, int ordem){
     strncpy (l->nome, nome, strlen(nome));
     l->nome[strlen(nome)] = '\0';
     l->pos = pos;
-    l->ordem = ordem;
     l->prox = NULL;
     l->ant = NULL;
     return l;
@@ -56,9 +55,9 @@ void adicionaNo (struct lista *lista, struct nol *no){
     lista->tam++;
 }
 
-void adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome, size_t pos, int ordem){
+void adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome, size_t pos){
     struct nol* novo;
-    novo = criaNo(dados, nome, pos, ordem);
+    novo = criaNo(dados, nome, pos);
     if (!novo){
         fprintf (stderr, "Falha de alocação");
         exit (1);
@@ -91,7 +90,6 @@ void imprimeListaArq (struct lista *lista, FILE *arq){
         fwrite (&aux->tamanho, sizeof(off_t), 1 , arq);
         fwrite (&aux->tempo, sizeof(time_t), 1 , arq);
         fwrite (&aux->pos, sizeof(size_t), 1 , arq);
-        fwrite (&aux->ordem, sizeof(int), 1 , arq);
         aux = aux->prox;
     }
 }

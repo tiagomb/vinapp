@@ -6,7 +6,7 @@ void inclui (struct lista *lista, char **args){
     FILE *arquivador;
     struct stat st;
     int pos = 0;
-    size_t diff;
+    long int diff;
     char buffer[BUFFER];
     struct nol *aux;
     if (!(arquivador = fopen (args[2], "r+b"))){
@@ -20,12 +20,16 @@ void inclui (struct lista *lista, char **args){
         if ((aux = busca (args[i], lista))){
             diff = st.st_size - aux->tamanho;
             refazEspaco (arquivador, aux, lista, diff);
-            atualizaLista(aux->tamanho, aux->pos, lista);
-            atualizaNo (aux, st, arquivador, lista->tam);
+            atualizaLista(-diff, aux->pos, lista);
+            atualizaNo (aux, st, arquivador);
+            fseek (arquivador, aux->pos, SEEK_SET);
         }
-        else
-            adicionaNaCauda (lista, &st, args[i], ftell (arquivador), lista->tam + 1);
+        else{
+            fseek (arquivador, 0, SEEK_END);
+            adicionaNaCauda (lista, &st, args[i], ftell (arquivador));
+        }
         leArquivo (args[i], buffer, arquivador, st);
+        fseek (arquivador, 0, SEEK_END);
         pos = ftell (arquivador);
         rewind (arquivador);
         fwrite (&pos, sizeof(int), 1, arquivador);
@@ -76,7 +80,7 @@ void exclui (struct lista *lista, char **args){
         if (!args[3]){
             aux = lista->inicio;
             while (aux){
-                removeArquivo (aux, arquivador);
+                removeArquivo (aux, arquivador, lista);
                 atualizaLista(aux->tamanho, aux->pos, lista);
                 aux1 = removeElemento (lista, aux->nome);
                 free (aux1->nome);
@@ -92,7 +96,7 @@ void exclui (struct lista *lista, char **args){
         else{
             for (int i = 3; args[i] != NULL; i++){
                 if ((aux = busca (args[i], lista))){
-                    removeArquivo (aux, arquivador);
+                    removeArquivo (aux, arquivador, lista);
                     atualizaLista(aux->tamanho, aux->pos, lista);
                     aux1 = removeElemento (lista, aux->nome);
                     free (aux1->nome);
@@ -130,18 +134,25 @@ void move (struct lista *lista, char *target, char **args){
         fprintf (stderr, "Arquivo inexistente\n");
         exit (1);
     }
-    if (aux1->ordem == aux->ordem + 1)
+    if (aux1 == aux->prox || aux1 == aux)
         return;
-    abreEspaco (arquivador, aux, aux1);
-    if (aux1->pos > aux->pos)
-        pos = aux1->pos + aux1->tamanho;
-    else
-        pos = aux1->pos;
-    moveArquivo (arquivador, aux, aux1, pos);
-    fseek (arquivador, -(pos + aux1->tamanho), SEEK_END);
-    preencheVazio (arquivador, aux, aux1, pos);
-    atualizaOrdem (lista, aux, aux1);
-}
+    abreEspaco (arquivador, aux1, aux, lista);
+    if (aux1->pos > aux->pos){
+        aux1->pos += aux1->tamanho;
+    }
+    copiaArquivo (aux, aux1, arquivador);
+    removeArquivo (aux1, arquivador, lista);
+    if (aux1->pos > aux->pos){
+        aux1->pos -= aux1->tamanho;
+    }
+    atualizaMove (aux1, aux, lista);
+    aux1->pos = aux->pos + aux->tamanho;
+    fseek (arquivador, 0, SEEK_END);
+    pos = ftell (arquivador);
+    rewind (arquivador);
+    fwrite (&pos, sizeof(int), 1, arquivador);
+    fseek (arquivador, 0, SEEK_END);
+} 
 
 void imprimeInformacoes (struct lista *lista, char **args){
     FILE *arquivador;
@@ -161,7 +172,6 @@ void imprimeInformacoes (struct lista *lista, char **args){
         printf ("%ld\t", aux->tamanho);
         tm = localtime (&aux->tempo);
         printf ("%d-%02d-%02d %02d:%02d\t", tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, tm->tm_hour, tm->tm_min);
-        printf ("%d\t", aux->ordem);
         printf ("%s\n", aux->nome);
         aux = aux->prox;
     }

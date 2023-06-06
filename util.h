@@ -7,9 +7,9 @@
 
 void leArquivo (char *arq, char *buffer, FILE *arquivador, struct stat st);
 
-void atualizaNo (struct nol *no, struct stat st, FILE *arquivador, int ordem);
+void atualizaNo (struct nol *no, struct stat st, FILE *arquivador);
 
-void removeArquivo (struct nol *no, FILE *arquivador);
+void removeArquivo (struct nol *no, FILE *arquivador, struct lista *lista);
 
 void extraiInformacoes (struct lista *lista, FILE *arquivador);
 
@@ -19,14 +19,12 @@ void atualizaLista (int tamanho, int pos, struct lista *lista);
 
 void imprimePermissoes (mode_t mode);
 
-void refazEspaco (FILE *arquivador, struct nol *aux, struct lista *lista, size_t diff);
+void refazEspaco (FILE *arquivador, struct nol *aux, struct lista *lista, long int diff);
 
-/*void moveArquivo (FILE *arquivador, struct nol *aux, struct nol *aux1, int pos);
+void abreEspaco (FILE *arquivador, struct nol *mover, struct nol *target, struct lista *lista);
 
-void preencheVazio (FILE *arquivador, struct nol *aux, struct nol *aux1, int pos);
+void copiaArquivo (struct nol *target, struct nol *mover, FILE *arquivador);
 
-void atualizaOrdem (struct lista *lista, struct nol *aux, struct nol *aux1);
-
-void mudaPonteiros (struct nol *aux, struct nol *aux1); */
+void atualizaMove (struct nol *mover, struct nol *target, struct lista *lista);
 
 #endif // ___util_h___
