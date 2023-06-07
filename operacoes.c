@@ -80,7 +80,7 @@ void exclui (struct lista *lista, char **args){
         if (!args[3]){
             aux = lista->inicio;
             while (aux){
-                removeArquivo (aux, arquivador, lista);
+                removeArquivo (aux, arquivador, lista, 0);
                 atualizaLista(aux->tamanho, aux->pos, lista);
                 aux1 = removeElemento (lista, aux->nome);
                 free (aux1->nome);
@@ -96,7 +96,7 @@ void exclui (struct lista *lista, char **args){
         else{
             for (int i = 3; args[i] != NULL; i++){
                 if ((aux = busca (args[i], lista))){
-                    removeArquivo (aux, arquivador, lista);
+                    removeArquivo (aux, arquivador, lista, 0);
                     atualizaLista(aux->tamanho, aux->pos, lista);
                     aux1 = removeElemento (lista, aux->nome);
                     free (aux1->nome);
@@ -139,15 +139,17 @@ void move (struct lista *lista, char *target, char **args){
     abreEspaco (arquivador, aux1, aux, lista);
     if (aux1->pos > aux->pos){
         aux1->pos += aux1->tamanho;
-    }
-    copiaArquivo (aux, aux1, arquivador);
-    removeArquivo (aux1, arquivador, lista);
-    if (aux1->pos > aux->pos){
+        copiaArquivo (aux, aux1, arquivador);
+        removeArquivo (aux1, arquivador, lista, 0);
         aux1->pos -= aux1->tamanho;
+    }
+    else{
+        copiaArquivo (aux, aux1, arquivador);
+        removeArquivo (aux1, arquivador, lista, aux1->tamanho);
     }
     atualizaMove (aux1, aux, lista);
     aux1->pos = aux->pos + aux->tamanho;
-    //fazer funcao pra mudar nos
+    mudaPonteiros (aux, aux1, lista);
     fseek (arquivador, 0, SEEK_END);
     pos = ftell (arquivador);
     rewind (arquivador);

@@ -28,10 +28,10 @@ void atualizaNo (struct nol *no, struct stat st, FILE *arquivador){
     no->tempo = st.st_mtime;
 }
 
-void removeArquivo (struct nol *no, FILE *arquivador, struct lista *lista){
+void removeArquivo (struct nol *no, FILE *arquivador, struct lista *lista, long int offset){
     char buffer[BUFFER];
-    int leituras, tam, fimArqs, fim;
-    fimArqs = lista->fim->pos + lista->fim->tamanho;
+    long int leituras, tam, fimArqs, fim;
+    fimArqs = lista->fim->pos + lista->fim->tamanho + offset;
     fseek (arquivador, fimArqs, SEEK_SET);
     fim = ftell (arquivador);
     tam = fim - (no->pos + no->tamanho);
@@ -211,10 +211,26 @@ void atualizaMove (struct nol *mover, struct nol *target, struct lista *lista){
     }
     else{
         while (aux){
-            if (aux->pos > mover->pos && aux->pos < target->pos)
+            if (aux->pos > mover->pos && aux->pos <= target->pos)
                 aux->pos -= mover->tamanho;
             aux = aux->prox;
         }
     }
+}
+
+void mudaPonteiros (struct nol *target, struct nol *mover, struct lista *lista){
+    if (lista->inicio == mover)
+        lista->inicio = mover->prox;
+    if (lista->fim == mover)
+        lista->fim = mover->ant;
+    if (mover->prox)
+        mover->prox->ant = mover->ant;
+    if (mover->ant)
+        mover->ant->prox = mover->prox;
+    if (target->prox)
+        target->prox->ant = mover;
+    mover->prox = target->prox;
+    mover->ant = target;
+    target->prox = mover;
 }
     
