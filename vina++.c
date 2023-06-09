@@ -15,10 +15,10 @@ int main(int argc, char **argv){
     }
     switch (comando){
         case 'i':
-            inclui (lista, argv);
+            inclui (lista, argv, 'i');
         break;
         case 'a':
-            printf ("%d argumentos para atualizar em %s\n", argc - 3, argv[2]);
+            inclui (lista, argv, 'a');
         break;
         case 'm':
             arquivo = optarg;

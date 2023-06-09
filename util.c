@@ -1,16 +1,17 @@
 #include "util.h"
 #include <unistd.h>
 #include <pwd.h>
+#include <string.h>
 
 void leArquivo (char *arq, char *buffer, FILE *arquivador, struct stat st){
     FILE *arquivo;
-    int leituras;
+    size_t leituras;
     if (!(arquivo = fopen (arq, "r"))){
         fprintf (stderr, "Falha ao abrir %s\n", arq);
         exit (1);
     }
     leituras = st.st_size/BUFFER;
-    for (int j = 0; j < leituras; j++){
+    for (size_t j = 0; j < leituras; j++){
         fread(buffer, sizeof(char), BUFFER, arquivo);
         fwrite(buffer, sizeof(char), BUFFER, arquivador);
     }
@@ -28,15 +29,15 @@ void atualizaNo (struct nol *no, struct stat st, FILE *arquivador){
     no->tempo = st.st_mtime;
 }
 
-void removeArquivo (struct nol *no, FILE *arquivador, struct lista *lista, long int offset){
+void removeArquivo (struct nol *no, FILE *arquivador, struct lista *lista, size_t offset){
     char buffer[BUFFER];
-    long int leituras, tam, fimArqs, fim;
+    size_t leituras, tam, fimArqs, fim;
     fimArqs = lista->fim->pos + lista->fim->tamanho + offset;
     fseek (arquivador, fimArqs, SEEK_SET);
     fim = ftell (arquivador);
     tam = fim - (no->pos + no->tamanho);
     leituras = tam/BUFFER;
-    for (int i = 0; i < leituras; i++){
+    for (size_t i = 0; i < leituras; i++){
         fseek (arquivador, no->pos + no->tamanho + i*BUFFER, SEEK_SET);
         fread (buffer, sizeof(char), BUFFER, arquivador);
         fseek (arquivador, no->pos + i*BUFFER, SEEK_SET);
@@ -54,9 +55,10 @@ void removeArquivo (struct nol *no, FILE *arquivador, struct lista *lista, long 
 }
 
 void extraiInformacoes (struct lista *lista, FILE *arquivador){
-    int pos, tam_arq, tam_lista;
+    size_t pos;
+    int tam_lista, tam_arq;
     struct nol *aux;
-    fread (&pos, sizeof(int), 1, arquivador);
+    fread (&pos, sizeof(size_t), 1, arquivador);
     fseek (arquivador, pos, SEEK_SET);
     fread (&tam_lista, sizeof(int), 1, arquivador);
     for (int i = 0; i < tam_lista; i++){
@@ -77,12 +79,12 @@ void extraiInformacoes (struct lista *lista, FILE *arquivador){
 
 void extraiArquivo (struct nol *no, FILE *arquivador){
     char buffer[BUFFER];
-    int leituras;
+    size_t leituras;
     FILE *arquivo;
     arquivo = fopen (no->nome, "w");
     fseek (arquivador, no->pos, SEEK_SET);
     leituras = no->tamanho/BUFFER;
-    for (int i = 0; i < leituras; i++){
+    for (size_t i = 0; i < leituras; i++){
         fread (buffer, sizeof(char), BUFFER, arquivador);
         fwrite (buffer, sizeof(char), BUFFER, arquivo);
     }
@@ -93,7 +95,7 @@ void extraiArquivo (struct nol *no, FILE *arquivador){
     fclose (arquivo);
 }
 
-void atualizaLista (int tamanho, int pos, struct lista *lista){
+void atualizaLista (size_t tamanho, size_t pos, struct lista *lista){
     struct nol *aux;
     aux = lista->inicio;
     while (aux){
@@ -118,17 +120,17 @@ void imprimePermissoes (mode_t mode){
 }
 
 void refazEspaco (FILE *arquivador, struct nol *aux, struct lista *lista, long int diff){
-    int tam, leituras, fim;
+    size_t tam, leituras, fim;
     char buffer[BUFFER];
     if (diff == 0)
         return;
-    int fimArqs = lista->fim->pos + lista->fim->tamanho;
+    size_t fimArqs = lista->fim->pos + lista->fim->tamanho;
     fseek (arquivador, fimArqs, SEEK_SET);
     fim = ftell (arquivador);
     tam = fim - (aux->pos + aux->tamanho);
     leituras = tam/BUFFER;
     if (diff > 0){
-        for (int i = 0; i < leituras; i++){
+        for (size_t i = 0; i < leituras; i++){
             fseek (arquivador, fimArqs - (i+1) * BUFFER, SEEK_SET);
             fread (buffer, sizeof(char), BUFFER, arquivador);
             fseek (arquivador, fimArqs - (i+1) * BUFFER + diff , SEEK_SET);
@@ -142,7 +144,7 @@ void refazEspaco (FILE *arquivador, struct nol *aux, struct lista *lista, long i
         }
     }
     else{
-        for (int i = 0; i < leituras; i++){
+        for (size_t i = 0; i < leituras; i++){
             fseek (arquivador, aux->pos + aux->tamanho + i*BUFFER, SEEK_SET);
             fread (buffer, sizeof(char), BUFFER, arquivador);
             fseek (arquivador, aux->pos + aux->tamanho +i*BUFFER + diff , SEEK_SET);
@@ -159,14 +161,14 @@ void refazEspaco (FILE *arquivador, struct nol *aux, struct lista *lista, long i
 }
 
 void abreEspaco (FILE *arquivador, struct nol *mover, struct nol *target, struct lista *lista){
-    int tam, leituras, fim;
+    size_t tam, leituras, fim;
     char buffer[BUFFER];
-    int fimArqs = lista->fim->pos + lista->fim->tamanho;
+    size_t fimArqs = lista->fim->pos + lista->fim->tamanho;
     fseek (arquivador, fimArqs, SEEK_SET);
     fim = ftell (arquivador);
     tam = fim - (target->pos + target->tamanho);
     leituras = tam/BUFFER;
-    for (int i = 0; i < leituras; i++){
+    for (size_t i = 0; i < leituras; i++){
         fseek (arquivador, fimArqs - (i+1) * BUFFER, SEEK_SET);
         fread (buffer, sizeof(char), BUFFER, arquivador);
         fseek (arquivador, fimArqs - (i+1) * BUFFER + mover->tamanho , SEEK_SET);
@@ -182,10 +184,10 @@ void abreEspaco (FILE *arquivador, struct nol *mover, struct nol *target, struct
 }
 
 void copiaArquivo (struct nol *target, struct nol *mover, FILE *arquivador){
-    int leituras;
+    size_t leituras;
     char buffer[BUFFER];
     leituras = mover->tamanho/BUFFER;
-    for (int i = 0; i < leituras; i++){
+    for (size_t i = 0; i < leituras; i++){
         fseek (arquivador, mover->pos + i*BUFFER, SEEK_SET);
         fread (buffer, sizeof(char), BUFFER, arquivador);
         fseek (arquivador, target->pos + target->tamanho + i*BUFFER, SEEK_SET);
@@ -233,4 +235,45 @@ void mudaPonteiros (struct nol *target, struct nol *mover, struct lista *lista){
     mover->ant = target;
     target->prox = mover;
 }
-    
+
+void atualizaListaArchive (FILE *arquivador, struct lista *lista){
+    size_t pos;
+    fseek (arquivador, 0, SEEK_END);
+    pos = ftell (arquivador);
+    rewind (arquivador);
+    fwrite (&pos, sizeof(size_t), 1, arquivador);
+    fseek (arquivador, 0, SEEK_END);
+    imprimeListaArq (lista, arquivador);
+    fclose (arquivador);
+}
+
+char *retornaNome (char *path){
+    char *aux;
+    if (path[0] == '/'){
+        aux = malloc (sizeof (char) * (strlen (path) + 2));
+        aux[0] = '.';
+        aux += 1;
+        strncpy (aux, path, strlen (path));
+        aux[strlen (path)] = '\0';
+        aux -= 1;
+        return aux;
+    }
+    else{
+        for (int i = 1; i < strlen (path); i++){
+            if (path[i] == '/'){
+                aux = malloc (sizeof (char) * (strlen (path) + 3));
+                aux[0] = '.';
+                aux[1] = '/';
+                aux += 2;
+                strncpy (aux, path, strlen (path));
+                aux[strlen (path)] = '\0';
+                aux -= 2;
+                return aux;
+            }
+        }
+        aux = malloc (sizeof (char) * (strlen (path) + 1));
+        strncpy (aux, path, strlen (path));
+        aux[strlen (path)] = '\0';
+        return aux;
+    }
+}

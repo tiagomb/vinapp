@@ -6,7 +6,7 @@
 
 #define BUFFER 1024
 
-void inclui (struct lista *lista, char **args);
+void inclui (struct lista *lista, char **args, char modo);
 
 void extrai (struct lista *lista, char **args);
 

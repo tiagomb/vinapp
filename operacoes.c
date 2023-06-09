@@ -2,46 +2,46 @@
 #include "util.h"
 #include <pwd.h>
 
-void inclui (struct lista *lista, char **args){
+void inclui (struct lista *lista, char **args, char modo){
     FILE *arquivador;
     struct stat st;
-    int pos = 0;
-    long int diff;
-    char buffer[BUFFER];
+    long int diff = 0;
+    char buffer[BUFFER], *nome;
     struct nol *aux;
     if (!(arquivador = fopen (args[2], "r+b"))){
         arquivador = fopen (args[2], "w+b");
-        fwrite (&pos, sizeof(int), 1, arquivador);
+        fwrite (&diff, sizeof (size_t), 1, arquivador);
     }
     else
         extraiInformacoes (lista, arquivador);
     for (int i = 3; args[i] != NULL; i++){
         stat(args[i], &st);
-        if ((aux = busca (args[i], lista))){
-            diff = st.st_size - aux->tamanho;
-            refazEspaco (arquivador, aux, lista, diff);
-            atualizaLista(-diff, aux->pos, lista);
-            atualizaNo (aux, st, arquivador);
-            fseek (arquivador, aux->pos, SEEK_SET);
+        nome = retornaNome (args[i]);
+        if ((aux = busca (nome, lista))){
+            if (modo == 'i' || st.st_mtime > aux->tempo){
+                diff = st.st_size - aux->tamanho;
+                refazEspaco (arquivador, aux, lista, diff);
+                atualizaLista(-diff, aux->pos, lista);
+                atualizaNo (aux, st, arquivador);
+                fseek (arquivador, aux->pos, SEEK_SET);
+                leArquivo (args[i], buffer, arquivador, st);
+            }
         }
         else{
             fseek (arquivador, 0, SEEK_END);
-            adicionaNaCauda (lista, &st, args[i], ftell (arquivador));
+            adicionaNaCauda (lista, &st, nome, ftell (arquivador));
+            leArquivo (args[i], buffer, arquivador, st);
         }
-        leArquivo (args[i], buffer, arquivador, st);
-        fseek (arquivador, 0, SEEK_END);
-        pos = ftell (arquivador);
-        rewind (arquivador);
-        fwrite (&pos, sizeof(int), 1, arquivador);
-        fseek (arquivador, 0, SEEK_END);
+        free (nome);
+        nome = NULL;  
     }
-    imprimeListaArq (lista, arquivador);
-    fclose (arquivador);
+    atualizaListaArchive (arquivador, lista);
 }
 
 void extrai (struct lista *lista, char **args){
     FILE *arquivador;
     struct nol *aux;
+    char *nome;
     if (!(arquivador = fopen (args[2], "rb"))){
         fprintf (stderr, "Arquivador inexistente\n");
         exit (1);
@@ -57,10 +57,13 @@ void extrai (struct lista *lista, char **args){
         }
         else{
             for (int i = 3; args[i] != NULL; i++){
-                if ((aux = busca (args[i], lista)))
+                nome = retornaNome (args[i]);
+                if ((aux = busca (nome, lista)))
                     extraiArquivo (aux, arquivador);
                 else
                     printf ("Arquivo não encontrado.\n");
+                free (nome);
+                nome = NULL;
             }
         }
         fclose (arquivador);
@@ -70,7 +73,7 @@ void extrai (struct lista *lista, char **args){
 void exclui (struct lista *lista, char **args){
     FILE *arquivador;
     struct nol *aux, *aux1;
-    int pos;
+    char *nome;
     if (!(arquivador = fopen (args[2], "r+b"))){
         fprintf (stderr, "Arquivador inexistente\n");
         exit (1);
@@ -86,25 +89,18 @@ void exclui (struct lista *lista, char **args){
                 free (aux1->nome);
                 free (aux1);
                 aux = aux->prox;
-                pos = ftell (arquivador);
-                rewind (arquivador);
-                fwrite (&pos, sizeof(int), 1, arquivador);
-                fseek (arquivador, 0, SEEK_END);
             }
             remove (args[2]);
         }
         else{
             for (int i = 3; args[i] != NULL; i++){
-                if ((aux = busca (args[i], lista))){
+                nome = retornaNome (args[i]);
+                if ((aux = busca (nome, lista))){
                     removeArquivo (aux, arquivador, lista, 0);
                     atualizaLista(aux->tamanho, aux->pos, lista);
                     aux1 = removeElemento (lista, aux->nome);
                     free (aux1->nome);
                     free (aux1);
-                    pos = ftell (arquivador);
-                    rewind (arquivador);
-                    fwrite (&pos, sizeof(int), 1, arquivador);
-                    fseek (arquivador, 0, SEEK_END);
                 }
                 else{
                     fprintf (stderr, "Arquivo inexistente\n");
@@ -114,22 +110,25 @@ void exclui (struct lista *lista, char **args){
             if (estaVazia (lista))
                 remove (args[2]);
         }
-        imprimeListaArq (lista, arquivador);
-        fclose (arquivador);
+        atualizaListaArchive (arquivador, lista);
     }
 }
 
 void move (struct lista *lista, char *target, char **args){
     FILE *arquivador;
+    char *nomeTarget, *nomeMove;
     if (!(arquivador = fopen (args[3], "r+b"))){
         fprintf (stderr, "Arquivador inexistente\n");
         exit (1);
     }
     struct nol *aux, *aux1;
-    int pos;
     extraiInformacoes (lista, arquivador);
-    aux = busca (target, lista);
-    aux1 = busca (args[4], lista);
+    nomeTarget = retornaNome (target);
+    nomeMove = retornaNome (args[4]);
+    aux = busca (nomeTarget, lista);
+    aux1 = busca (nomeMove, lista);
+    free (nomeTarget);
+    free (nomeMove);
     if (!aux || !aux1){
         fprintf (stderr, "Arquivo inexistente\n");
         exit (1);
@@ -150,13 +149,7 @@ void move (struct lista *lista, char *target, char **args){
     atualizaMove (aux1, aux, lista);
     aux1->pos = aux->pos + aux->tamanho;
     mudaPonteiros (aux, aux1, lista);
-    fseek (arquivador, 0, SEEK_END);
-    pos = ftell (arquivador);
-    rewind (arquivador);
-    fwrite (&pos, sizeof(int), 1, arquivador);
-    fseek (arquivador, 0, SEEK_END);
-    imprimeListaArq (lista, arquivador);
-    fclose (arquivador);
+    atualizaListaArchive (arquivador, lista);
 } 
 
 void imprimeInformacoes (struct lista *lista, char **args){
