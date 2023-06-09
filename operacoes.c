@@ -51,15 +51,22 @@ void extrai (struct lista *lista, char **args){
         if (!args[3]){
             aux = lista->inicio;
             while (aux){
-                extraiArquivo (aux, arquivador);
+                if (aux->nome[0] == '.' && aux->nome[1] == '/')
+                    extraiDiretorio (aux, arquivador);
+                else
+                    extraiArquivo (aux, arquivador, aux->nome);
                 aux = aux->prox;
             }
         }
         else{
             for (int i = 3; args[i] != NULL; i++){
                 nome = retornaNome (args[i]);
-                if ((aux = busca (nome, lista)))
-                    extraiArquivo (aux, arquivador);
+                if ((aux = busca (nome, lista))){
+                    if (aux->nome[0] == '.' && aux->nome[1] == '/')
+                        extraiDiretorio (aux, arquivador);
+                    else
+                        extraiArquivo (aux, arquivador, aux->nome);
+                }
                 else
                     printf ("Arquivo não encontrado.\n");
                 free (nome);
@@ -106,6 +113,8 @@ void exclui (struct lista *lista, char **args){
                     fprintf (stderr, "Arquivo inexistente\n");
                     exit (1);
                 }
+                free (nome);
+                nome = NULL;
             }
             if (estaVazia (lista))
                 remove (args[2]);

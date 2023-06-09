@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <pwd.h>
 #include <string.h>
+#include <limits.h>
 
 void leArquivo (char *arq, char *buffer, FILE *arquivador, struct stat st){
     FILE *arquivo;
@@ -64,6 +65,7 @@ void extraiInformacoes (struct lista *lista, FILE *arquivador){
     for (int i = 0; i < tam_lista; i++){
         aux = malloc (sizeof (struct nol));
         aux->prox = NULL;
+        aux->ant = NULL;
         fread (&tam_arq, sizeof(int), 1, arquivador);
         aux->nome = malloc ((tam_arq+1)*sizeof(char));
         fread (aux->nome, sizeof(char), tam_arq, arquivador);
@@ -77,11 +79,11 @@ void extraiInformacoes (struct lista *lista, FILE *arquivador){
     }
 }
 
-void extraiArquivo (struct nol *no, FILE *arquivador){
+void extraiArquivo (struct nol *no, FILE *arquivador, char *nome){
     char buffer[BUFFER];
     size_t leituras;
     FILE *arquivo;
-    arquivo = fopen (no->nome, "w");
+    arquivo = fopen (nome, "w");
     fseek (arquivador, no->pos, SEEK_SET);
     leituras = no->tamanho/BUFFER;
     for (size_t i = 0; i < leituras; i++){
@@ -276,4 +278,37 @@ char *retornaNome (char *path){
         aux[strlen (path)] = '\0';
         return aux;
     }
+}
+
+char *retornaNomeArq (char *path){
+    int tam = 0, i = strlen (path) - 1;
+    while (path[i] != '/'){
+        tam++;
+        i--;
+    }
+    char *aux = malloc (sizeof (char) * (tam + 1));
+    for (int j = 0; j < tam; j++){
+        aux[j] = path[i+1];
+        i++;
+    }
+    aux[tam] = '\0';
+    return aux;
+}
+
+void extraiDiretorio (struct nol *no, FILE *arquivador){
+    char *nomeArq, *aux;
+    char path[BUFFER];
+    getcwd (path, BUFFER);
+    nomeArq = retornaNomeArq (no->nome);
+    no->nome += 2;
+    aux = strtok (no->nome, "/");
+    no->nome -= 2;
+    while (strcmp (aux, nomeArq)){
+        mkdir (aux, 0777);
+        chdir (aux);
+        aux = strtok (NULL, "/");
+    }
+    extraiArquivo (no, arquivador, nomeArq);
+    chdir (path);
+    free (nomeArq);
 }

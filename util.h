@@ -13,7 +13,7 @@ void removeArquivo (struct nol *no, FILE *arquivador, struct lista *lista, size_
 
 void extraiInformacoes (struct lista *lista, FILE *arquivador);
 
-void extraiArquivo (struct nol *no, FILE *arquivador);
+void extraiArquivo (struct nol *no, FILE *arquivador, char *nome);
 
 void atualizaLista (size_t tamanho, size_t pos, struct lista *lista);
 
@@ -32,5 +32,9 @@ void mudaPonteiros (struct nol *target, struct nol *mover, struct lista *lista);
 void atualizaListaArchive (FILE *arquivador, struct lista *lista);
 
 char *retornaNome (char *path);
+
+char *retornaNomeArq (char *path);
+
+void extraiDiretorio (struct nol *no, FILE *arquivador);
 
 #endif // ___util_h___

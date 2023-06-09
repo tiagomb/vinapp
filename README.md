@@ -1,3 +1,4 @@
 # vinapp
 
-checar por erros e tirar duvidas sobre argumentos (é possivel assumir que a opt vai ser o primeiro argumento, e que o argumento depois dela vai ser o arquivador?)
+mudar os ints para long ints ou size_t
+implementar as funcoes relacionadas a diretorio (por um ./ no inicio dos nomes, separar o nome nas barras, criar diretorios desses nomes e dar chdir neles, criar o arquivo dentro deles e voltar
