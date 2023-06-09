@@ -1,4 +1,5 @@
 # vinapp
 
-mudar os ints para long ints ou size_t
-implementar as funcoes relacionadas a diretorio (por um ./ no inicio dos nomes, separar o nome nas barras, criar diretorios desses nomes e dar chdir neles, criar o arquivo dentro deles e voltar
+tirar duvidas sobre argumentos para as funcoes (que informacoes posso assumir, como lidar com erros, etc)
+separar funcoes em mais bibliotecas (deixar mais especificas)
+fazer makefile que permita execucao do arquivo sem ./
