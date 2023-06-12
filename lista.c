@@ -1,5 +1,5 @@
 #include "lista.h"
-#include "util.h"
+#include "archive.h"
 #include <time.h>
 #include <string.h>
 
@@ -72,26 +72,6 @@ void adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome, size_
         lista->fim = novo;
     }
     lista->tam++;
-}
-
-void imprimeListaArq (struct lista *lista, FILE *arq){
-    struct nol *aux;
-    int tam;
-    if (estaVazia (lista))
-        return;
-    aux = lista->inicio;
-    fwrite (&lista->tam, sizeof(int), 1 , arq);
-    while (aux){
-        tam = strlen(aux->nome);
-        fwrite (&tam, sizeof(int), 1 , arq);
-        fwrite (aux->nome, sizeof(char), strlen(aux->nome), arq);
-        fwrite (&aux->userid, sizeof(uid_t), 1 , arq);
-        fwrite (&aux->perms, sizeof(mode_t), 1 , arq);
-        fwrite (&aux->tamanho, sizeof(off_t), 1 , arq);
-        fwrite (&aux->tempo, sizeof(time_t), 1 , arq);
-        fwrite (&aux->pos, sizeof(size_t), 1 , arq);
-        aux = aux->prox;
-    }
 }
 
 int estaVazia (struct lista *lista){

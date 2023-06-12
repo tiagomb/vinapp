@@ -3,6 +3,9 @@
 
 #include <stdio.h>
 #include "lista.h"
+#include "archive.h"
+#include "caminho.h"
+#include "diretorio.h"
 
 #define BUFFER 1024
 

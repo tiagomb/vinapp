@@ -1,5 +1,4 @@
 #include "operacoes.h"
-#include "util.h"
 #include <pwd.h>
 #include <unistd.h>
 
@@ -90,40 +89,26 @@ void exclui (struct lista *lista, char **args){
     }
     else{
         extraiInformacoes (lista, arquivador);
-        if (!args[3]){
-            aux = lista->inicio;
-            while (aux){
+        for (int i = 3; args[i] != NULL; i++){
+            nome = retornaNome (args[i]);
+            if ((aux = busca (nome, lista))){
                 removeArquivo (aux, arquivador, lista, 0);
                 atualizaLista(aux->tamanho, aux->pos, lista);
                 aux1 = removeElemento (lista, aux->nome);
                 free (aux1->nome);
                 free (aux1);
-                aux = aux->prox;
             }
+            else{
+                fprintf (stderr, "Arquivo inexistente\n");
+                exit (1);
+            }
+            free (nome);
+            nome = NULL;
+        }
+        if (estaVazia (lista))
             remove (args[2]);
-        }
-        else{
-            for (int i = 3; args[i] != NULL; i++){
-                nome = retornaNome (args[i]);
-                if ((aux = busca (nome, lista))){
-                    removeArquivo (aux, arquivador, lista, 0);
-                    atualizaLista(aux->tamanho, aux->pos, lista);
-                    aux1 = removeElemento (lista, aux->nome);
-                    free (aux1->nome);
-                    free (aux1);
-                }
-                else{
-                    fprintf (stderr, "Arquivo inexistente\n");
-                    exit (1);
-                }
-                free (nome);
-                nome = NULL;
-            }
-            if (estaVazia (lista))
-                remove (args[2]);
-        }
-        atualizaListaArchive (arquivador, lista);
     }
+    atualizaListaArchive (arquivador, lista);
 }
 
 void move (struct lista *lista, char *target, char **args){

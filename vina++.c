@@ -15,12 +15,24 @@ int main(int argc, char **argv){
     }
     switch (comando){
         case 'i':
+            if (argc < 4){
+                fprintf (stderr, "Uso indevido\n");
+                exit (1);
+            }
             inclui (lista, argv, 'i');
         break;
         case 'a':
+            if (argc < 4){
+                fprintf (stderr, "Uso indevido\n");
+                exit (1);
+            }
             inclui (lista, argv, 'a');
         break;
         case 'm':
+            if (argc != 5){
+                fprintf (stderr, "Uso indevido\n");
+                exit (1);
+            }
             arquivo = optarg;
             move (lista, arquivo, argv);
         break;
@@ -28,6 +40,10 @@ int main(int argc, char **argv){
             extrai (lista, argv);
         break;
         case 'r':
+            if (argc < 4){
+                fprintf (stderr, "Uso indevido\n");
+                exit (1);
+            }
             exclui (lista, argv);
         break;
         case 'c':

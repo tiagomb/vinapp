@@ -32,8 +32,6 @@ void adicionaNo (struct lista *lista, struct nol *no);
 
 void adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome, size_t pos);
 
-void imprimeListaArq (struct lista *lista, FILE *arq);
-
 int estaVazia (struct lista *lista);
 
 struct lista *inicializaLista ();
