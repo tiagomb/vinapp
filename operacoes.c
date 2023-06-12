@@ -1,6 +1,7 @@
 #include "operacoes.h"
 #include "util.h"
 #include <pwd.h>
+#include <unistd.h>
 
 void inclui (struct lista *lista, char **args, char modo){
     FILE *arquivador;
@@ -12,8 +13,10 @@ void inclui (struct lista *lista, char **args, char modo){
         arquivador = fopen (args[2], "w+b");
         fwrite (&diff, sizeof (size_t), 1, arquivador);
     }
-    else
+    else{
         extraiInformacoes (lista, arquivador);
+        ftruncate (fileno (arquivador), lista->fim->pos + lista->fim->tamanho);
+    }
     for (int i = 3; args[i] != NULL; i++){
         stat(args[i], &st);
         nome = retornaNome (args[i]);
