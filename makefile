@@ -5,23 +5,23 @@ all: vina++
 vina++: vina++.o archive.o caminho.o diretorio.o lista.o operacoes.o
 	gcc -o vina++ vina++.o archive.o caminho.o diretorio.o lista.o operacoes.o
 
-vina++.o: vina++.c
-	gcc -c vina++.c $(CFLAGS)
+vina++.o: ./src/vina++.c
+	gcc -c ./src/vina++.c $(CFLAGS)
 
-archive.o: archive.c archive.h
-	gcc -c archive.c $(CFLAGS)
+archive.o: ./src/archive.c ./src/archive.h
+	gcc -c ./src/archive.c $(CFLAGS)
 
-caminho.o: caminho.c caminho.h
-	gcc -c caminho.c $(CFLAGS)
+caminho.o: ./src/caminho.c ./src/caminho.h
+	gcc -c ./src/caminho.c $(CFLAGS)
 
-diretorio.o: diretorio.c diretorio.h
-	gcc -c diretorio.c $(CFLAGS)
+diretorio.o: ./src/diretorio.c ./src/diretorio.h
+	gcc -c ./src/diretorio.c $(CFLAGS)
 
-lista.o: lista.c lista.h
-	gcc -c lista.c $(CFLAGS)
+lista.o: ./src/lista.c ./src/lista.h
+	gcc -c ./src/lista.c $(CFLAGS)
 
-operacoes.o: operacoes.c operacoes.h
-	gcc -c operacoes.c $(CFLAGS)
+operacoes.o: ./src/operacoes.c ./src/operacoes.h
+	gcc -c ./src/operacoes.c $(CFLAGS)
 
 clean:
 	-rm *.o

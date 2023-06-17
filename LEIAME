@@ -1,0 +1,27 @@
+Nome: Tiago Mendes Bottamedi    GRR20220068
+
+###Arquivos contidos###
+
+-archive.[h/c]: Essa biblioteca lida com a manipulação de arquivos dentro do archive, sempre utilizando um buffer de tamanho 1024 para leituras/escritas. Nela estão contidas as funções de inclusão, remoção, movimentação e extração de conteúdos dentro do archive.
+-caminho.[h/c]: Essa biblioteca lida com os arquivos cujo nome é um caminho absoluto ou relativo. Nela estão contidas as funções que geram o nome conforme o enunciado (colocando um "./" na frente) e que criam os diretórios necessários para que o arquivo possa ser extraído corretamente.
+-diretorio.[h/c]: Essa biblioteca lida com a seção de diretório do archive. Nela estão contidas funções específicas relacionadas à lista (estrutura escolhida para armazenas as informações), como funções de atualização de nós, da posição dentro do archive, da troca de nós (move) e extração e impressão
+das informações no archive.
+-lista.[h/c]: Essa biblioteca lida com a manipulação básica de listas. Nela estão contidas funções essenciais para o funcionamento de uma lista, como busca, inserção, remoção, inicialização e liberação de memória.
+-operacoes.[h/c]: Essa biblioteca lida com as operações especificadas pelo trabalho. Nela estão contidas funções que, através das funções auxiliares criadas nas  bibliotecas acima, realizam as operações desejadas conforme o enunciado.
+-vina++.c: Lida com os argumentos de entrada e direciona o funcionamento do programa conforme esses argumentos. 
+
+###Estrutura de dados e algoritmos utilizados###
+
+-A estrutura de dados escolhida foi uma lista duplamente encadeada. Essa opção foi escolhida por possuir facilidade no manuseio e por já ter sido utilizada em outros projetos, permitindo o reaproveitamento de código previamente desenvolvido. Outras opções consideradas foram árvores, porém a eficiência não compensava a dificuldade de manipulação, e lista encadeada simples. No entanto, a lista encadeada simples tornava mais difícil a troca de nós dentro da lista, devido à ausência de um ponteiro para o nó anterior.
+
+-Como a ordem dos arquivos dentro do archive é igual a ordem de inserção (exceto quando alterada pelo move), o algoritmo de inserção utilizado é a inserção na cauda. Há duas variações desse algoritmo no programa, uma na qual a função recebe como paramêtros as informações a serem inseridas, cria um nó com essas informações e adiciona na cauda, e outra que recebe um nó já criado e adiciona-o na cauda.
+
+-Os algoritmos de remoção e troca de nós fazem uso da manipulação de ponteiros para facilitar o processo. No primeiro, o nó anterior e o nó próximo ao que se deseja remover passam a apontar um para o outro e o nó que se deseja remover é liberado. No segundo, o elemento a ser movido é retirado de sua posição e inserido novamente logo após o nó target.
+
+###Dificuldades encontradas e contornadas###
+
+- As dificuldades podem ser basicamente resumidas em manipular os arquivos dentro do archive. Em todas as etapas houve certa dificuldade em saber as posições de início e fim da manipulação, onde começar a ler/escrever, onde parar, qual o tamanho da leitura, como truncar o arquivo do tamanho certo, etc. Para contornar esses problemas, algo bem útil foi a utilização de desenhos para entender visualmente como tal manipulação aconteceria, antes de partir para o código em si. Tentar entender o que devia acontecer antes de programar ao invés de ir na base da tentativa e erro foi essencial para o processo.
+
+###Bugs conhecidos###
+
+- Caso o argumento correspondente ao arquivador não siga a estrutura utilizada pelo programa (não esteja nos padrões que utilizei para criar o arquivador), o programa pode ter um comportamento não previsto e indeterminado. Há verificações que auxiliam a minimizar esse tipo de erro, mas não há como garantir total proteção.
