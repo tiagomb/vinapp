@@ -5,6 +5,9 @@
 #include <string.h>
 #include <limits.h>
 
+/*A seguinte funcao retorna o nome do arquivo conforme especificado pelo enunciado. Caso o nome comece com uma barra (caminho absoluto), é inserido
+um '.' no inicio da string. Caso haja barra no meio do nome (caminho relativo), é inserido um './' no comeco da string. Caso contrário, a string é retornada
+do mesmo jeito que foi passada como parametro*/
 char *retornaNome (char *path){
     char *aux;
     if (path[0] == '/'){
@@ -36,6 +39,8 @@ char *retornaNome (char *path){
     }
 }
 
+/*A seguinte funcao recebe um caminho e retorna o nome do arquivo em si. Ou seja, dado um nome "./home/inf/xyz00/abc.txt",
+a funcao retorna "abc.txt"*/
 char *retornaNomeArq (char *path){
     int tam = 0, i = strlen (path) - 1;
     while (path[i] != '/'){
@@ -51,6 +56,8 @@ char *retornaNomeArq (char *path){
     return aux;
 }
 
+/*A funcao abaixo cria os diretorios presentes no caminho de um arquivo dentro do diretorio atual e ao final extrai o 
+arquivo dentro desses diretorios.*/
 void extraiDiretorio (struct nol *no, FILE *arquivador){
     char *nomeArq, *aux;
     char path[BUFFER];
