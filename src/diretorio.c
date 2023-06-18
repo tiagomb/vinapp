@@ -4,6 +4,7 @@
 #include <string.h>
 #include <limits.h>
 
+/*Atualiza as informações do arquivo na lista*/
 void atualizaNo (struct nol *no, struct stat st, FILE *arquivador){
     no->perms = st.st_mode;
     no->userid = st.st_uid;
@@ -11,6 +12,7 @@ void atualizaNo (struct nol *no, struct stat st, FILE *arquivador){
     no->tempo = st.st_mtime;
 }
 
+/*Caso o arquivador já exista, extrai as informações presentes no diretório para a lista, facilitando a manipulação dos dados*/
 void extraiInformacoes (struct lista *lista, FILE *arquivador){
     size_t pos;
     int tam_lista, tam_arq;
@@ -38,6 +40,7 @@ void extraiInformacoes (struct lista *lista, FILE *arquivador){
     }
 }
 
+/*Atualiza as posições de cada nó após a remoção/atualização de um arquivo*/
 void atualizaLista (size_t tamanho, size_t pos, struct lista *lista){
     struct nol *aux;
     aux = lista->inicio;
@@ -48,6 +51,7 @@ void atualizaLista (size_t tamanho, size_t pos, struct lista *lista){
     }
 }
 
+/*Atualiza os nós que tiverem sua posição alterada (os nós que estavam entre o target e o movido) após a movimentação de arquivos*/
 void atualizaMove (struct nol *mover, struct nol *target, struct lista *lista){
     struct nol *aux;
     aux = lista->inicio;
@@ -67,6 +71,8 @@ void atualizaMove (struct nol *mover, struct nol *target, struct lista *lista){
     }
 }
 
+/*Move o nó que contém as informações do arquivo movido pela operação move (tira-o de seu lugar original e reinsere logo após
+o nó que contém as informações do arquivo target*/
 void mudaPonteiros (struct nol *target, struct nol *mover, struct lista *lista){
     if (lista->inicio == mover)
         lista->inicio = mover->prox;
@@ -83,6 +89,7 @@ void mudaPonteiros (struct nol *target, struct nol *mover, struct lista *lista){
     target->prox = mover;
 }
 
+/*Atualiza a posição do diretório dentro do archive e chama a função para imprimir o diretório dentro do archive*/
 void atualizaListaArchive (FILE *arquivador, struct lista *lista){
     size_t pos;
     fseek (arquivador, 0, SEEK_END);
@@ -94,6 +101,7 @@ void atualizaListaArchive (FILE *arquivador, struct lista *lista){
     fclose (arquivador);
 }
 
+/*Imprime as informações do diretório dentro do archive*/
 void imprimeListaArq (struct lista *lista, FILE *arq){
     struct nol *aux;
     int tam;
