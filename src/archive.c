@@ -4,6 +4,8 @@
 #include <string.h>
 #include <limits.h>
 
+/*A funcao abaixo realiza a leitura de um arquivo para dentro do arquivador através de leituras bufferizadas. Caso haja erro, avisa
+o usuário e sai com código de erro 1.*/
 void leArquivo (char *arq, char *buffer, FILE *arquivador, struct stat st){
     FILE *arquivo;
     size_t leituras;
@@ -23,6 +25,8 @@ void leArquivo (char *arq, char *buffer, FILE *arquivador, struct stat st){
     fclose (arquivo);
 }
 
+/*A seguinte funcao remove um arquivo do arquivador sobreescrevendo-o, ou seja, todo o conteúdo abaixo do arquivo
+a ser removido é jogado para cima. Ao final do processo, o arquivador é truncado para o novo tamanho.*/
 void removeArquivo (struct nol *no, FILE *arquivador, struct lista *lista, size_t offset){
     char buffer[BUFFER];
     size_t leituras, tam, fimArqs, fim;
@@ -48,6 +52,8 @@ void removeArquivo (struct nol *no, FILE *arquivador, struct lista *lista, size_
     fseek (arquivador, 0, SEEK_END);
 }
 
+/*A funcao abaixo extrai um arquivo de dentro do arquivador, criando um arquivo com mesmo nome, conteúdo e permissoes que
+o arquivo presente no arquivador*/
 void extraiArquivo (struct nol *no, FILE *arquivador, char *nome){
     char buffer[BUFFER];
     size_t leituras;
@@ -64,8 +70,11 @@ void extraiArquivo (struct nol *no, FILE *arquivador, char *nome){
         fwrite (buffer, sizeof(char), no->tamanho%BUFFER, arquivo);
     }
     fclose (arquivo);
+    chmod (nome, no->perms);
 }
 
+/*A funcao abaixo recebe as permissoes de um arquivo no formato mode_t e converte para o formato legível presente nos comandos
+tar -tvf e ls -l*/
 void imprimePermissoes (mode_t mode){
     printf( (S_ISDIR(mode)) ? "d" : "-");
     printf( (mode & S_IRUSR) ? "r" : "-");
@@ -79,6 +88,9 @@ void imprimePermissoes (mode_t mode){
     printf( (mode & S_IXOTH) ? "x " : "- ");
 }
 
+/*A seguinte funcao é utilizada para substituicoes de arquivo. Caso o arquivo novo seja maior que o antigo, a funcao abre
+espaco suficiente para que ele caiba. Caso seja menor, o conteudo abaixo do arquivo é movido para cima o suficiente para deixar o tamanho exato
+do novo arquivo. Caso o arquivo novo e o original tenham o mesmo tamanho, nada acontece.*/
 void refazEspaco (FILE *arquivador, struct nol *aux, struct lista *lista, long int diff){
     size_t tam, leituras, fim;
     char buffer[BUFFER];
@@ -120,6 +132,8 @@ void refazEspaco (FILE *arquivador, struct nol *aux, struct lista *lista, long i
     ftruncate (fileno(arquivador), fimArqs + diff);
 }
 
+/*A funcao abaixo é auxiliar à funcao de mover arquivos. Ela abre um espaco abaixo do arquivo target de tamanho equivalente
+ao do arquivo que será movido, para que ele entao possa ser copiado para esse espaco*/
 void abreEspaco (FILE *arquivador, struct nol *mover, struct nol *target, struct lista *lista){
     size_t tam, leituras, fim;
     char buffer[BUFFER];
@@ -143,6 +157,8 @@ void abreEspaco (FILE *arquivador, struct nol *mover, struct nol *target, struct
     ftruncate (fileno(arquivador), fimArqs + mover->tamanho);
 }
 
+/*Essa funcao, tambem auxiliar à funcao de mover, copia o arquivo a ser movido de seu local original para o local 
+aberto pela funcao abreEspaco*/
 void copiaArquivo (struct nol *target, struct nol *mover, FILE *arquivador){
     size_t leituras;
     char buffer[BUFFER];
