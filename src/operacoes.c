@@ -2,6 +2,9 @@
 #include <pwd.h>
 #include <unistd.h>
 
+/*A função abaixo é responsável por executar as operações de "-i" e "-a" especificadas no trabalho. Caso o arquivador não exista,
+cria ele com o modo "w+", senão, abre com o modo "r+". A função itera pelos argumentos passados pelo usuário, fazendo as verificações
+necessárias para saber se precisa inserir, atualizar ou não fazer nada.*/
 void inclui (struct lista *lista, char **args, char modo){
     FILE *arquivador;
     struct stat st;
@@ -40,6 +43,9 @@ void inclui (struct lista *lista, char **args, char modo){
     atualizaListaArchive (arquivador, lista);
 }
 
+/*A função abaixo é responsável por extrair os arquivos passados como argumentos. Caso nenhum arquivo seja passado, todos são extráidos.
+Caso o arquivo passado como argumentos tenha um caminho absoluto ou relativo, é chamada a função extraiDiretorio, que lida com a criação 
+dos diretórios dentro do diretório atual*/
 void extrai (struct lista *lista, char **args){
     FILE *arquivador;
     struct nol *aux;
@@ -81,6 +87,7 @@ void extrai (struct lista *lista, char **args){
     }
 }
 
+/*A função abaixo exclui os arquivos passados como argumento pelo usuário. Caso ao final da remoção o arquivador esteja vazio, ele também é excluído.*/
 void exclui (struct lista *lista, char **args){
     FILE *arquivador;
     struct nol *aux, *aux1;
@@ -113,6 +120,8 @@ void exclui (struct lista *lista, char **args){
     atualizaListaArchive (arquivador, lista);
 }
 
+/*A função abaixo é responsável por mover o arquivo passado como argumento para logo após o arquivo target. Caso os arquivos sejam iguais
+ou o arquivo a ser movido já esteja logo após target, nada acontece.*/
 void move (struct lista *lista, char *target, char **args){
     FILE *arquivador;
     char *nomeTarget, *nomeMove;
@@ -136,13 +145,17 @@ void move (struct lista *lista, char *target, char **args){
         return;
     abreEspaco (arquivador, aux1, aux, lista);
     if (aux1->pos > aux->pos){
+        /*Caso aux1 esteja depois de aux, sua posição terá sido alterada na abertura de espaço, sendo necessário somar o
+        seu tamanho para obter a posição real para cópia e remoção*/
         aux1->pos += aux1->tamanho;
         copiaArquivo (aux, aux1, arquivador);
-        removeArquivo (aux1, arquivador, lista, 0);
-        aux1->pos -= aux1->tamanho;
+        removeArquivo (aux1, arquivador, lista, 0); //como já foi somado aux1->tamanho em aux1->pos, não há necessidade de offset
+        aux1->pos -= aux1->tamanho; //retorna ao valor presente na lista para fazer as comparações necessárias com os outros nós e atualizá-los
     }
     else{
         copiaArquivo (aux, aux1, arquivador);
+        /*Como um espaço de aux1->tamanho foi aberto, o conteúdo do archive acaba aux1->tamanho á frente da posição salva na lista, sendo necessário
+        um offset de aux1->tamanho para que a movimentação de dados na remoção do arquivo ocorra de forma correta*/
         removeArquivo (aux1, arquivador, lista, aux1->tamanho);
     }
     atualizaMove (aux1, aux, lista);
@@ -151,6 +164,8 @@ void move (struct lista *lista, char *target, char **args){
     atualizaListaArchive (arquivador, lista);
 } 
 
+/*A função abaixo é responsável por imprimir as informações presentes no diretório da maneira especificada no trabalho, ou seja, igual a opção
+tar -tvf, porém sem o group ID (uma vez que o mesmo não foi solicitado)*/
 void imprimeInformacoes (struct lista *lista, char **args){
     FILE *arquivador;
     if (!(arquivador = fopen (args[2], "r+b"))){
@@ -175,6 +190,7 @@ void imprimeInformacoes (struct lista *lista, char **args){
     fclose (arquivador);
 }
 
+/*A seguinte função é responsável por imprimir as opções possíveis de uso do programa para o usuário*/
 void imprimeOpcoes (){
     printf ("Usos:\n");
     printf ("vina++ -i <archive> [membro1 membro2 ...]\n");
