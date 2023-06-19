@@ -30,7 +30,10 @@ a ser removido é jogado para cima. Ao final do processo, o arquivador é trunca
 void removeArquivo (struct nol *no, FILE *arquivador, struct lista *lista, size_t offset){
     char buffer[BUFFER];
     size_t leituras, tam, fimArqs, fim;
-    fimArqs = lista->fim->pos + lista->fim->tamanho + offset;
+    if (no == lista->fim) //neste caso, o offset já está incluso na posição do arquivo
+        fimArqs = lista->fim->pos + lista->fim->tamanho;
+    else 
+        fimArqs = lista->fim->pos + lista->fim->tamanho + offset;
     fseek (arquivador, fimArqs, SEEK_SET);
     fim = ftell (arquivador);
     tam = fim - (no->pos + no->tamanho);

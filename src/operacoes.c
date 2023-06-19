@@ -125,7 +125,8 @@ ou o arquivo a ser movido já esteja logo após target, nada acontece.*/
 void move (struct lista *lista, char *target, char **args){
     FILE *arquivador;
     char *nomeTarget, *nomeMove;
-    if (!(arquivador = fopen (args[3], "r+b"))){
+    arquivador = fopen (args[3], "r+b");
+    if (!arquivador){
         fprintf (stderr, "Arquivador inexistente\n");
         exit (1);
     }
@@ -141,21 +142,23 @@ void move (struct lista *lista, char *target, char **args){
         fprintf (stderr, "Arquivo inexistente\n");
         exit (1);
     }
-    if (aux1 == aux->prox || aux1 == aux)
+    if (aux1 == aux->prox || aux1 == aux){
+        fclose (arquivador);
         return;
+    }
     abreEspaco (arquivador, aux1, aux, lista);
     if (aux1->pos > aux->pos){
         /*Caso aux1 esteja depois de aux, sua posição terá sido alterada na abertura de espaço, sendo necessário somar o
         seu tamanho para obter a posição real para cópia e remoção*/
         aux1->pos += aux1->tamanho;
         copiaArquivo (aux, aux1, arquivador);
-        removeArquivo (aux1, arquivador, lista, 0); //como já foi somado aux1->tamanho em aux1->pos, não há necessidade de offset
+        /*Como um espaço de aux1->tamanho foi aberto, o conteúdo do archive acaba aux1->tamanho á frente da posição salva na lista, sendo necessário
+        um offset de aux1->tamanho para que a movimentação de dados na remoção do arquivo ocorra de forma correta*/
+        removeArquivo (aux1, arquivador, lista, aux1->tamanho);
         aux1->pos -= aux1->tamanho; //retorna ao valor presente na lista para fazer as comparações necessárias com os outros nós e atualizá-los
     }
     else{
         copiaArquivo (aux, aux1, arquivador);
-        /*Como um espaço de aux1->tamanho foi aberto, o conteúdo do archive acaba aux1->tamanho á frente da posição salva na lista, sendo necessário
-        um offset de aux1->tamanho para que a movimentação de dados na remoção do arquivo ocorra de forma correta*/
         removeArquivo (aux1, arquivador, lista, aux1->tamanho);
     }
     atualizaMove (aux1, aux, lista);
