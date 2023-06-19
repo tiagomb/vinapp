@@ -33,14 +33,16 @@ struct nol *removeElemento (struct lista *lista, char *nome){
         lista->tam--;
         return aux;
     }
-    while (aux->prox && strcmp(aux->prox->nome, nome))
+    while (aux && strcmp(aux->nome, nome))
         aux = aux->prox;
-    if (aux->prox){
-        aux->prox = aux->prox->prox;
+    if (aux){
+        aux->ant->prox = aux->prox;
         if (aux->prox)
-            aux->prox->ant = aux;
+            aux->prox->ant = aux->ant;
+        aux->ant = NULL;
+        aux->prox = NULL;
         lista->tam--;
-        return aux->prox;
+        return aux;
     }
     return NULL;
 }
@@ -92,7 +94,7 @@ struct lista *inicializaLista (){
     struct lista *aux;
     aux = malloc (sizeof (struct lista));
     if (!aux){
-        fprint (stderr, "Falha de alocação na estrutura lista.\n");
+        fprintf (stderr, "Falha de alocação na estrutura lista.\n");
         exit(1);
     }
     aux->tam = 0;
