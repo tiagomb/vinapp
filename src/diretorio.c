@@ -32,6 +32,7 @@ void extraiInformacoes (struct lista *lista, FILE *arquivador){
         fread (aux->nome, sizeof(char), tam_arq, arquivador);
         aux->nome[tam_arq] = '\0';
         fread (&aux->userid, sizeof(uid_t), 1, arquivador);
+        fread (&aux->groupid, sizeof(gid_t), 1, arquivador);
         fread (&aux->perms, sizeof(mode_t), 1, arquivador);
         fread (&aux->tamanho, sizeof(off_t), 1, arquivador);
         fread (&aux->tempo, sizeof(time_t), 1, arquivador);
@@ -114,6 +115,7 @@ void imprimeListaArq (struct lista *lista, FILE *arq){
         fwrite (&tam, sizeof(int), 1 , arq);
         fwrite (aux->nome, sizeof(char), strlen(aux->nome), arq);
         fwrite (&aux->userid, sizeof(uid_t), 1 , arq);
+        fwrite (&aux->groupid, sizeof(gid_t), 1 , arq);
         fwrite (&aux->perms, sizeof(mode_t), 1 , arq);
         fwrite (&aux->tamanho, sizeof(off_t), 1 , arq);
         fwrite (&aux->tempo, sizeof(time_t), 1 , arq);

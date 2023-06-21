@@ -12,6 +12,7 @@ struct nol{
     size_t pos;
     mode_t perms;
     uid_t userid;
+    gid_t groupid;
     off_t tamanho;
     time_t tempo;
     struct nol *prox;

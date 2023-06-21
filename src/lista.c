@@ -13,6 +13,7 @@ struct nol *criaNo (struct stat *dados, char *nome, size_t pos){
     l->perms = dados->st_mode;
     l->tamanho = dados->st_size;
     l->userid = dados->st_uid;
+    l->groupid = dados->st_gid;
     l->tempo = dados->st_mtime;
     l->nome = malloc ((strlen(nome)+1)*sizeof(char));
     strncpy (l->nome, nome, strlen(nome));

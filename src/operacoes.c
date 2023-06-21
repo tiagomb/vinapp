@@ -1,5 +1,6 @@
 #include "operacoes.h"
 #include <pwd.h>
+#include <grp.h>
 #include <unistd.h>
 
 /*A função abaixo é responsável por executar as operações de "-i" e "-a" especificadas no trabalho. Caso o arquivador não exista,
@@ -177,13 +178,15 @@ void imprimeInformacoes (struct lista *lista, char **args){
     }
     struct nol *aux;
     struct passwd *pw;
+    struct group *gr;
     struct tm *tm;
     extraiInformacoes (lista, arquivador);
     aux = lista->inicio;
     while (aux){
         imprimePermissoes (aux->perms);
         pw = getpwuid (aux->userid);
-        printf ("%s ", pw->pw_name);
+        gr = getgrgid (aux->groupid);
+        printf ("%s/%s ", pw->pw_name, gr->gr_name);
         printf ("%8ld ", aux->tamanho);
         tm = localtime (&aux->tempo);
         printf ("%d-%02d-%02d %02d:%02d ", tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday, tm->tm_hour, tm->tm_min);
