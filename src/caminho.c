@@ -12,6 +12,10 @@ char *retornaNome (char *path){
     char *aux;
     if (path[0] == '/'){
         aux = malloc (sizeof (char) * (strlen (path) + 2));
+        if (!aux){
+            fprintf (stderr, "Erro na alocacao de memoria\n");
+            exit (1);
+        }
         aux[0] = '.';
         aux += 1;
         strncpy (aux, path, strlen (path));
@@ -23,6 +27,10 @@ char *retornaNome (char *path){
         for (int i = 1; i < strlen (path); i++){
             if (path[i] == '/'){
                 aux = malloc (sizeof (char) * (strlen (path) + 3));
+                if (!aux){
+                    fprintf (stderr, "Erro na alocacao de memoria\n");
+                    exit (1);
+                }
                 aux[0] = '.';
                 aux[1] = '/';
                 aux += 2;
@@ -33,6 +41,10 @@ char *retornaNome (char *path){
             }
         }
         aux = malloc (sizeof (char) * (strlen (path) + 1));
+        if (!aux){
+            fprintf (stderr, "Erro na alocacao de memoria\n");
+            exit (1);
+        }
         strncpy (aux, path, strlen (path));
         aux[strlen (path)] = '\0';
         return aux;

@@ -25,10 +25,18 @@ void extraiInformacoes (struct lista *lista, FILE *arquivador){
     fread (&tam_lista, sizeof(int), 1, arquivador);
     for (int i = 0; i < tam_lista; i++){
         aux = malloc (sizeof (struct nol));
+        if (!aux){
+            fprintf (stderr, "Falha ao alocar memória\n");
+            exit (1);
+        }
         aux->prox = NULL;
         aux->ant = NULL;
         fread (&tam_arq, sizeof(int), 1, arquivador);
         aux->nome = malloc ((tam_arq+1)*sizeof(char));
+        if (!aux->nome){
+            fprintf (stderr, "Falha ao alocar memória\n");
+            exit (1);
+        }
         fread (aux->nome, sizeof(char), tam_arq, arquivador);
         aux->nome[tam_arq] = '\0';
         fread (&aux->userid, sizeof(uid_t), 1, arquivador);

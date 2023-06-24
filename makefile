@@ -24,7 +24,4 @@ operacoes.o: ./src/operacoes.c ./src/operacoes.h
 	gcc -c ./src/operacoes.c $(CFLAGS)
 
 clean:
-	-rm *.o
-
-purge:
 	-rm *.o vina++

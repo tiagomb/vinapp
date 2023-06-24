@@ -16,6 +16,8 @@ struct nol *criaNo (struct stat *dados, char *nome, size_t pos){
     l->groupid = dados->st_gid;
     l->tempo = dados->st_mtime;
     l->nome = malloc ((strlen(nome)+1)*sizeof(char));
+    if (!l->nome)
+        return NULL;
     strncpy (l->nome, nome, strlen(nome));
     l->nome[strlen(nome)] = '\0';
     l->pos = pos;

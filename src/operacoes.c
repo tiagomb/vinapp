@@ -77,7 +77,7 @@ void extrai (struct lista *lista, char **args){
                         extraiArquivo (aux, arquivador, aux->nome);
                 }
                 else{
-                    fprintf (stderr, "Arquivo inexistente\n");
+                    fprintf (stderr, "Arquivo %s inexistente\n", nome);
                     exit (1);
                 }
                 free (nome);
@@ -109,7 +109,7 @@ void exclui (struct lista *lista, char **args){
                 free (aux1);
             }
             else{
-                fprintf (stderr, "Arquivo inexistente\n");
+                fprintf (stderr, "Arquivo %s inexistente\n", nome);
                 exit (1);
             }
             free (nome);
@@ -140,7 +140,7 @@ void move (struct lista *lista, char *target, char **args){
     free (nomeTarget);
     free (nomeMove);
     if (!aux || !aux1){
-        fprintf (stderr, "Arquivo inexistente\n");
+        fprintf (stderr, "Falha ao encontrar arquivos\n");
         exit (1);
     }
     if (aux1 == aux->prox || aux1 == aux){
