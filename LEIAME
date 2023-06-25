@@ -1,6 +1,11 @@
 Nome: Tiago Mendes Bottamedi    GRR20220068
 
-###Arquivos contidos###
+###Arquivos e diretórios presentes no pacote###
+-/src: Diretório contendo os arquivos-fonte necessários para compilação do executável "vina++"
+-LEIAME: Documento relatando o processo de criação do código e suas especificidades
+-makefile: Contém a regra all, que gera os arquivos .o e o executável, e a regra clean, que deleta os arquivos .o e executável
+
+###Arquivos-fonte contidos###
 
 -archive.[h/c]: Essa biblioteca lida com a manipulação de arquivos dentro do archive, sempre utilizando um buffer de tamanho 1024 para leituras/escritas. Nela estão contidas as funções de inclusão, remoção, movimentação e extração de conteúdos dentro do archive.
 -caminho.[h/c]: Essa biblioteca lida com os arquivos cujo nome é um caminho absoluto ou relativo. Nela estão contidas as funções que geram o nome conforme o enunciado (colocando um "./" na frente) e que criam os diretórios necessários para que o arquivo possa ser extraído corretamente.
@@ -8,7 +13,11 @@ Nome: Tiago Mendes Bottamedi    GRR20220068
 das informações no archive.
 -lista.[h/c]: Essa biblioteca lida com a manipulação básica de listas. Nela estão contidas funções essenciais para o funcionamento de uma lista, como busca, inserção, remoção, inicialização e liberação de memória.
 -operacoes.[h/c]: Essa biblioteca lida com as operações especificadas pelo trabalho. Nela estão contidas funções que, através das funções auxiliares criadas nas  bibliotecas acima, realizam as operações desejadas conforme o enunciado.
--vina++.c: Lida com os argumentos de entrada e direciona o funcionamento do programa conforme esses argumentos. 
+-vina++.c: Lida com os argumentos de entrada e direciona o funcionamento do programa conforme esses argumentos.
+
+###Formato do archive###
+
+-O archive possui o seguinte formato: Em seu começo há um size_t que marca a posição do diretório. A partir dessa posição até o começo do diretório estão exclusivamente os conteúdos dos arquivos inseridos, na ordem em que foram inseridos (exceto no caso de movimentação de arquivos causada pela opção -m). O diretório, por fim, contém as informações necessárias para manipulação dos arquivos e solicitadas pelo enunciado. Além disso, há informações que não foram explicitamente solicitadas pelo enunciado, mas que foram utilizadas para auxiliar no processo de extração de informações, como a quantidade de arquivos presentes no arquivador (para saber quantas leituras serão necessárias) e tamanho do nome de cada arquivo (para saber quantos bytes ler e quanto espaço alocar).
 
 ###Estrutura de dados e algoritmos utilizados###
 
@@ -20,7 +29,7 @@ das informações no archive.
 
 ###Dificuldades encontradas e contornadas###
 
-- As dificuldades podem ser basicamente resumidas em manipular os arquivos dentro do archive. Em todas as etapas houve certa dificuldade em saber as posições de início e fim da manipulação, onde começar a ler/escrever, onde parar, qual o tamanho da leitura, como truncar o arquivo do tamanho certo, etc. Para contornar esses problemas, algo bem útil foi a utilização de desenhos para entender visualmente como tal manipulação aconteceria, antes de partir para o código em si. Tentar entender o que devia acontecer antes de programar ao invés de ir na base da tentativa e erro foi essencial para o processo.
+- As dificuldades podem ser basicamente resumidas em manipular os arquivos dentro do archive. Em todas as etapas houve certa dificuldade em saber as posições de início e fim da manipulação, onde começar a ler/escrever, onde parar, qual o tamanho da leitura, como truncar o arquivo do tamanho certo e quanto de espaço abrir/diminuir (movimentação e atualização). Para contornar esses problemas, algo bem útil foi a utilização de desenhos para entender visualmente como tal manipulação aconteceria, antes de partir para o código em si. A utilização do gdb também foi essencial para ajudar a visualizar e corrigir erros.
 
 ###Bugs conhecidos###
 
