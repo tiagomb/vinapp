@@ -11,7 +11,7 @@ void atualizaNo (struct nol *no, struct stat st, FILE *arquivador);
 
 void extraiInformacoes (struct lista *lista, FILE *arquivador);
 
-void atualizaLista (size_t tamanho, size_t pos, struct lista *lista);
+void atualizaLista (size_t tamanho, int ordem, struct lista *lista, int mudaOrdem);
 
 void atualizaMove (struct nol *mover, struct nol *target, struct lista *lista);
 

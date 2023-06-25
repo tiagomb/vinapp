@@ -75,9 +75,7 @@ void extraiDiretorio (struct nol *no, FILE *arquivador){
     char path[BUFFER];
     getcwd (path, BUFFER);
     nomeArq = retornaNomeArq (no->nome);
-    no->nome += 2;
     aux = strtok (no->nome, "/");
-    no->nome -= 2;
     while (strcmp (aux, nomeArq)){
         mkdir (aux, no->perms | S_IRWXU);
         chdir (aux);

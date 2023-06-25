@@ -7,7 +7,7 @@
 #include "caminho.h"
 #include "diretorio.h"
 
-void leArquivo (char *arq, char *buffer, FILE *arquivador, struct stat st);
+void leArquivo (char *arq, FILE *arquivador, struct stat st);
 
 void removeArquivo (struct nol *no, FILE *arquivador, struct lista *lista, size_t offset);
 

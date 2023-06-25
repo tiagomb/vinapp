@@ -10,7 +10,7 @@ void inclui (struct lista *lista, char **args, char modo){
     FILE *arquivador;
     struct stat st;
     long int diff = 0;
-    char buffer[BUFFER], *nome;
+    char *nome;
     struct nol *aux;
     if (!(arquivador = fopen (args[2], "r+b"))){
         arquivador = fopen (args[2], "w+b");
@@ -27,16 +27,16 @@ void inclui (struct lista *lista, char **args, char modo){
             if (modo == 'i' || st.st_mtime > aux->tempo){
                 diff = st.st_size - aux->tamanho;
                 refazEspaco (arquivador, aux, lista, diff);
-                atualizaLista(-diff, aux->pos, lista);
+                atualizaLista(-diff, aux->ordem, lista, 0);
                 atualizaNo (aux, st, arquivador);
                 fseek (arquivador, aux->pos, SEEK_SET);
-                leArquivo (args[i], buffer, arquivador, st);
+                leArquivo (args[i], arquivador, st);
             }
         }
         else{
             fseek (arquivador, 0, SEEK_END);
-            adicionaNaCauda (lista, &st, nome, ftell (arquivador));
-            leArquivo (args[i], buffer, arquivador, st);
+            adicionaNaCauda (lista, &st, nome, ftell (arquivador), i-2);
+            leArquivo (args[i], arquivador, st);
         }
         free (nome);
         nome = NULL;  
@@ -103,7 +103,7 @@ void exclui (struct lista *lista, char **args){
             nome = retornaNome (args[i]);
             if ((aux = busca (nome, lista))){
                 removeArquivo (aux, arquivador, lista, 0);
-                atualizaLista(aux->tamanho, aux->pos, lista);
+                atualizaLista(aux->tamanho, aux->ordem, lista, 1);
                 aux1 = removeElemento (lista, aux->nome);
                 free (aux1->nome);
                 free (aux1);
@@ -148,7 +148,7 @@ void move (struct lista *lista, char *target, char **args){
         return;
     }
     abreEspaco (arquivador, aux1, aux, lista);
-    if (aux1->pos > aux->pos){
+    if (aux1->ordem > aux->ordem){
         /*Caso aux1 esteja depois de aux, sua posição terá sido alterada na abertura de espaço, sendo necessário somar o
         seu tamanho para obter a posição real para cópia e remoção*/
         aux1->pos += aux1->tamanho;
@@ -164,12 +164,13 @@ void move (struct lista *lista, char *target, char **args){
     }
     atualizaMove (aux1, aux, lista);
     aux1->pos = aux->pos + aux->tamanho;
+    aux1->ordem = aux->ordem + 1;
     mudaPonteiros (aux, aux1, lista);
     atualizaListaArchive (arquivador, lista);
 } 
 
 /*A função abaixo é responsável por imprimir as informações presentes no diretório da maneira especificada no trabalho, ou seja, igual a opção
-tar -tvf, porém sem o group ID (uma vez que o mesmo não foi solicitado)*/
+tar -tvf*/
 void imprimeInformacoes (struct lista *lista, char **args){
     FILE *arquivador;
     if (!(arquivador = fopen (args[2], "r+b"))){

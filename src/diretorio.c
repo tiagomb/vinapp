@@ -45,17 +45,21 @@ void extraiInformacoes (struct lista *lista, FILE *arquivador){
         fread (&aux->tamanho, sizeof(off_t), 1, arquivador);
         fread (&aux->tempo, sizeof(time_t), 1, arquivador);
         fread (&aux->pos, sizeof(size_t), 1, arquivador);
+        fread (&aux->ordem, sizeof(int), 1, arquivador);
         adicionaNo (lista, aux);
     }
 }
 
-/*Atualiza as posições de cada nó após a remoção/atualização de um arquivo*/
-void atualizaLista (size_t tamanho, size_t pos, struct lista *lista){
+/*Atualiza as posições de cada nó após a remoção/atualização de um arquivo. Caso mudaOrdem seja 1, as ordens também são alteradas.*/
+void atualizaLista (size_t tamanho, int ordem, struct lista *lista, int mudaOrdem){
     struct nol *aux;
     aux = lista->inicio;
     while (aux){
-        if (aux->pos > pos)
+        if (aux->ordem > ordem){
             aux->pos -= tamanho;
+            if (mudaOrdem)
+                aux->ordem--;
+        }
         aux = aux->prox;
     }
 }
@@ -66,15 +70,19 @@ void atualizaMove (struct nol *mover, struct nol *target, struct lista *lista){
     aux = lista->inicio;
     if (mover->pos > target->pos){
         while (aux){
-            if (aux->pos > target->pos && aux->pos < mover->pos)
+            if (aux->pos > target->pos && aux->pos < mover->pos){
                 aux->pos += mover->tamanho;
+                aux->ordem++;
+            }
             aux = aux->prox;
         }
     }
     else{
         while (aux){
-            if (aux->pos > mover->pos && aux->pos <= target->pos)
+            if (aux->pos > mover->pos && aux->pos <= target->pos){
                 aux->pos -= mover->tamanho;
+                aux->ordem--;
+            }
             aux = aux->prox;
         }
     }
@@ -128,6 +136,7 @@ void imprimeListaArq (struct lista *lista, FILE *arq){
         fwrite (&aux->tamanho, sizeof(off_t), 1 , arq);
         fwrite (&aux->tempo, sizeof(time_t), 1 , arq);
         fwrite (&aux->pos, sizeof(size_t), 1 , arq);
+        fwrite (&aux->ordem , sizeof(int), 1 , arq);
         aux = aux->prox;
     }
 }

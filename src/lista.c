@@ -5,7 +5,7 @@
 
 /*A função abaixo cria um nó com as informações passadas como paramêtro e retorna um ponteiro para esse nó.
 Caso a alocação falhe, retorna NULL*/
-struct nol *criaNo (struct stat *dados, char *nome, size_t pos){
+struct nol *criaNo (struct stat *dados, char *nome, size_t pos, int ordem){
     struct nol *l;
     l = malloc(sizeof (struct nol));
     if (!l)
@@ -15,6 +15,7 @@ struct nol *criaNo (struct stat *dados, char *nome, size_t pos){
     l->userid = dados->st_uid;
     l->groupid = dados->st_gid;
     l->tempo = dados->st_mtime;
+    l->ordem = ordem;
     l->nome = malloc ((strlen(nome)+1)*sizeof(char));
     if (!l->nome)
         return NULL;
@@ -65,9 +66,9 @@ void adicionaNo (struct lista *lista, struct nol *no){
 }
 
 /*A função abaixo cria um nó com as informações passadas como paramêtro, e insere-o na cauda*/
-void adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome, size_t pos){
+void adicionaNaCauda (struct lista *lista, struct stat *dados, char *nome, size_t pos, int ordem){
     struct nol* novo;
-    novo = criaNo(dados, nome, pos);
+    novo = criaNo(dados, nome, pos, ordem);
     if (!novo){
         fprintf (stderr, "Falha de alocação");
         exit (1);

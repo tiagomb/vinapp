@@ -47,9 +47,17 @@ int main(int argc, char **argv){
             exclui (lista, argv);
         break;
         case 'c':
+            if (argc != 3){
+                fprintf (stderr, "Uso: vina++ -c <archive>\n");
+                exit (1);
+            }
             imprimeInformacoes (lista, argv);
         break;
         case 'h':
+            if (argc != 2){
+                fprintf (stderr, "Uso: vina++ -h\n");
+                exit (1);
+            }
             imprimeOpcoes ();
         break;
         default:

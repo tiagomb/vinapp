@@ -6,9 +6,10 @@
 
 /*A funcao abaixo realiza a leitura de um arquivo para dentro do arquivador através de leituras bufferizadas. Caso haja erro, avisa
 o usuário e sai com código de erro 1.*/
-void leArquivo (char *arq, char *buffer, FILE *arquivador, struct stat st){
+void leArquivo (char *arq, FILE *arquivador, struct stat st){
     FILE *arquivo;
     size_t leituras;
+    char buffer[BUFFER];
     if (!(arquivo = fopen (arq, "r"))){
         fprintf (stderr, "Falha ao abrir %s\n", arq);
         exit (1);
